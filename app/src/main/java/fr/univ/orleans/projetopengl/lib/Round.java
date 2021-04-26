@@ -1,77 +1,44 @@
-/*
- * Copyright (C) 2011 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package fr.univ.orleans.projetopengl.lib;
+
+import android.opengl.GLES10;
+import android.opengl.GLES30;
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.DoubleStream;
-import java.util.stream.Stream;
-
-import android.graphics.Color;
-import android.opengl.GLES10;
-import android.os.Build;
-import android.util.Log;
-
-//import android.opengl.GLES20;
-import android.opengl.GLES30;
-
-import androidx.annotation.RequiresApi;
-
-import org.apache.commons.lang3.ArrayUtils;
-
-
-//Dessiner un carré
 
 @RequiresApi(api = Build.VERSION_CODES.N)
-public class Square implements IObject {
-/* Le vertex shader avec la définition de gl_Position et les variables utiles au fragment shader
- */
+public class Round implements IObject {
+    /* Le vertex shader avec la définition de gl_Position et les variables utiles au fragment shader
+     */
     private final String vertexShaderCode =
-        "#version 300 es\n"+
-                "uniform mat4 uMVPMatrix;\n"+
-            "in vec3 vPosition;\n" +
-                "in vec4 vCouleur;\n"+
-                "out vec4 Couleur;\n"+
-                "out vec3 Position;\n"+
-            "void main() {\n" +
-                "Position = vPosition;\n"+
-            "gl_Position = uMVPMatrix * vec4(vPosition,1.0);\n" +
-                "Couleur = vCouleur;\n"+
-            "}\n";
+            "#version 300 es\n"+
+                    "uniform mat4 uMVPMatrix;\n"+
+                    "in vec3 vPosition;\n" +
+                    "in vec4 vCouleur;\n"+
+                    "out vec4 Couleur;\n"+
+                    "out vec3 Position;\n"+
+                    "void main() {\n" +
+                    "Position = vPosition;\n"+
+                    "gl_Position = uMVPMatrix * vec4(vPosition,1.0);\n" +
+                    "Couleur = vCouleur;\n"+
+                    "}\n";
 
     private final String fragmentShaderCode =
             "#version 300 es\n"+
-            "precision mediump float;\n" + // pour définir la taille d'un float
-            "in vec4 Couleur;\n"+
-            "in vec3 Position;\n"+
-            "out vec4 fragColor;\n"+
-            "void main() {\n" +
-            //"float x = Position.x;\n"+
-            //"float y = Position.y;\n"+
-            // "float test = x*x+y*y;\n"+ Pour faire un rond
-            //"if (test>1.0) \n"+
-            //    "discard;\n"+
-            "fragColor = Couleur;\n" +
-            "}\n";
+                    "precision mediump float;\n" + // pour définir la taille d'un float
+                    "in vec4 Couleur;\n"+
+                    "in vec3 Position;\n"+
+                    "out vec4 fragColor;\n"+
+                    "void main() {\n" +
+                    "fragColor = Couleur;\n" +
+                    "}\n";
 
     /* les déclarations pour l'équivalent des VBO */
 
@@ -93,57 +60,76 @@ public class Square implements IObject {
     int[] linkStatus = {0};
 
     // Le tableau des coordonnées des sommets
-    float[] squareCoords;
+    private final float[] roundCoords;
     // Le tableau des couleurs
-    float[] squareColors;
+    private final float[] roundColors;
 
     // Le carré est dessiné avec 2 triangles
-    private final short[] Indices = { 0, 1, 2, 0, 2, 3 };
+    private final short[] Indices = {
+            //Branch
+            0, 5, 6,
+            1, 6, 7,
+            2, 7, 8,
+            3, 8, 9,
+            4, 9, 5,
+
+            //Center
+            5, 6, 8,
+            6, 7, 9,
+            7, 8, 5,
+            8, 9, 6,
+            9, 5, 7,
+    };
 
     private final int vertexStride = COORDS_PER_VERTEX * 4; // le pas entre 2 sommets : 4 bytes per vertex
 
     private final int couleurStride = COULEURS_PER_VERTEX * 4; // le pas entre 2 couleurs
 
-    public Square(float[] squareCoords, float[] squareColors) {
-        this(squareCoords, squareColors, 1, new float[] {0.0f, 0.0f});
+
+    public Round(float[] roundCoords, float[] roundColors) {
+        this(roundCoords, roundColors, 1);
     }
-    public Square(float[] squareCoords, float[] squareColors, float scaling) {
-        this(squareCoords, squareColors, scaling, new float[] {0.0f, 0.0f});
+
+    public Round(float[] roundCoords, float[] roundColors, float scaling) {
+        this(roundCoords, roundColors, scaling, new float[] {0.0f, 0.0f});
     }
-    public Square(float[] squareCoords, float[] squareColors, float[] center) {
-        this(squareCoords, squareColors, 1, center);
+
+    public Round(float[] roundCoords, float[] roundColors, float[] center) {
+        this(roundCoords, roundColors, 1, center);
     }
-    public Square(float[] squareCoords, float[] squareColors, float scaling, float[] center) {
+
+    public Round(float[] roundCoords, float[] roundColors, float scaling, float[] center) {
 
         //Rescale
-        for (int i = 0; i < squareCoords.length; i++)
-            squareCoords[i] *= scaling;
+        for (int i = 0; i < roundCoords.length; i++)
+            roundCoords[i] *= scaling;
 
         // Move to center
         // x
-        for (int i = 0; i < squareCoords.length; i+=3)
-            squareCoords[i] += center[0];
+        for (int i = 0; i < roundCoords.length; i+=3)
+            roundCoords[i] += center[0];
 
         // y
-        for (int i = 1; i < squareCoords.length; i+=3)
-            squareCoords[i] += center[0];
+        for (int i = 1; i < roundCoords.length; i+=3)
+            roundCoords[i] += center[0];
 
-        this.squareCoords = squareCoords;
-        this.squareColors = squareColors;
+
+        this.roundCoords = roundCoords;
+        this.roundColors = roundColors;
 
         // initialisation du buffer pour les vertex (4 bytes par float)
-        ByteBuffer bb = ByteBuffer.allocateDirect(squareCoords.length * 4);
+        ByteBuffer bb = ByteBuffer.allocateDirect(roundCoords.length * 4);
         bb.order(ByteOrder.nativeOrder());
         vertexBuffer = bb.asFloatBuffer();
-        vertexBuffer.put(squareCoords);
+        vertexBuffer.put(roundCoords);
         vertexBuffer.position(0);
 
 
         // initialisation du buffer pour les couleurs (4 bytes par float)
-        ByteBuffer bc = ByteBuffer.allocateDirect(squareColors.length * 4);
+        ByteBuffer bc = ByteBuffer.allocateDirect(roundColors.length * 4);
         bc.order(ByteOrder.nativeOrder());
         colorBuffer = bc.asFloatBuffer();
-        colorBuffer.put(squareColors);
+        colorBuffer.put(roundColors);
         colorBuffer.position(0);
 
         // initialisation du buffer des indices
@@ -178,7 +164,7 @@ public class Square implements IObject {
         // Add program to OpenGL environment
         GLES30.glUseProgram(IdProgram);
 
-           // get handle to shape's transformation matrix
+        // get handle to shape's transformation matrix
         IdMVPMatrix = GLES30.glGetUniformLocation(IdProgram, "uMVPMatrix");
 
         // Apply the projection and view transformation
@@ -227,8 +213,8 @@ public class Square implements IObject {
     public List<Vector3> getCoords() {
         List<Vector3> res = new ArrayList<Vector3>();
 
-        for (int i = 0; i < squareCoords.length; i += 3) {
-            res.add(new Vector3(squareCoords[i], squareCoords[i+1], squareCoords[i+2]));
+        for (int i = 0; i < roundCoords.length; i += 3) {
+            res.add(new Vector3(roundCoords[i], roundCoords[i+1], roundCoords[i+2]));
         }
 
         return res;

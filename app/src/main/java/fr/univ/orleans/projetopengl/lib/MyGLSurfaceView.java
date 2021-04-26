@@ -85,6 +85,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
         On suppose que l'écran correspond à un carré d'arête 2 centré en 0
          */
 
+        //Permet d'adapter à la taille de création
         float x_opengl = 20.0f*x/getWidth() - 10.0f;
         float y_opengl = -20.0f*y/getHeight() + 10.0f;
 
