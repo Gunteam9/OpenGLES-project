@@ -65,11 +65,6 @@ public class Square implements IObject {
             "in vec3 Position;\n"+
             "out vec4 fragColor;\n"+
             "void main() {\n" +
-            //"float x = Position.x;\n"+
-            //"float y = Position.y;\n"+
-            // "float test = x*x+y*y;\n"+ Pour faire un rond
-            //"if (test>1.0) \n"+
-            //    "discard;\n"+
             "fragColor = Couleur;\n" +
             "}\n";
 
@@ -93,27 +88,35 @@ public class Square implements IObject {
     int[] linkStatus = {0};
 
     // Le tableau des coordonnées des sommets
-    float[] squareCoords;
+    float[] squareCoords = {
+            -2.0f, 2.0f, 0.0f,
+            -2.0f, -2.0f, 0.0f,
+            2.0f, -2.0f, 0.0f,
+            2.0f, 2.0f, 0.0f
+    };
     // Le tableau des couleurs
     float[] squareColors;
 
     // Le carré est dessiné avec 2 triangles
     private final short[] Indices = { 0, 1, 2, 0, 2, 3 };
+    private float[] center;
 
     private final int vertexStride = COORDS_PER_VERTEX * 4; // le pas entre 2 sommets : 4 bytes per vertex
 
     private final int couleurStride = COULEURS_PER_VERTEX * 4; // le pas entre 2 couleurs
 
-    public Square(float[] squareCoords, float[] squareColors) {
-        this(squareCoords, squareColors, 1, new float[] {0.0f, 0.0f});
+    public Square(Colors squareColors) {
+        this(squareColors, 1, new float[] {0.0f, 0.0f});
     }
-    public Square(float[] squareCoords, float[] squareColors, float scaling) {
-        this(squareCoords, squareColors, scaling, new float[] {0.0f, 0.0f});
+    public Square(Colors squareColors, float scaling) {
+        this(squareColors, scaling, new float[] {0.0f, 0.0f});
     }
-    public Square(float[] squareCoords, float[] squareColors, float[] center) {
-        this(squareCoords, squareColors, 1, center);
+    public Square(Colors squareColors, float[] center) {
+        this(squareColors, 1, center);
     }
-    public Square(float[] squareCoords, float[] squareColors, float scaling, float[] center) {
+    public Square(Colors squareColors, float scaling, float[] center) {
+        this.center = center;
+        this.squareColors = squareColors.multiplyBy(squareCoords.length / 3);
 
         //Rescale
         for (int i = 0; i < squareCoords.length; i++)
@@ -126,10 +129,8 @@ public class Square implements IObject {
 
         // y
         for (int i = 1; i < squareCoords.length; i+=3)
-            squareCoords[i] += center[0];
+            squareCoords[i] += center[1];
 
-        this.squareCoords = squareCoords;
-        this.squareColors = squareColors;
 
         // initialisation du buffer pour les vertex (4 bytes par float)
         ByteBuffer bb = ByteBuffer.allocateDirect(squareCoords.length * 4);
@@ -140,10 +141,10 @@ public class Square implements IObject {
 
 
         // initialisation du buffer pour les couleurs (4 bytes par float)
-        ByteBuffer bc = ByteBuffer.allocateDirect(squareColors.length * 4);
+        ByteBuffer bc = ByteBuffer.allocateDirect(this.squareColors.length * 4);
         bc.order(ByteOrder.nativeOrder());
         colorBuffer = bc.asFloatBuffer();
-        colorBuffer.put(squareColors);
+        colorBuffer.put(this.squareColors);
         colorBuffer.position(0);
 
         // initialisation du buffer des indices
@@ -232,6 +233,10 @@ public class Square implements IObject {
         }
 
         return res;
+    }
+
+    public Vector2 getCenter() {
+        return new Vector2(center[0], center[1]);
     }
 
 }

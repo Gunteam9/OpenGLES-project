@@ -39,11 +39,6 @@ public class Triangle implements IObject {
                     "in vec3 Position;\n"+
                     "out vec4 fragColor;\n"+
                     "void main() {\n" +
-                    //"float x = Position.x;\n"+
-                    //"float y = Position.y;\n"+
-                    // "float test = x*x+y*y;\n"+ Pour faire un rond
-                    //"if (test>1.0) \n"+
-                    //    "discard;\n"+
                     "fragColor = Couleur;\n" +
                     "}\n";
 
@@ -67,29 +62,36 @@ public class Triangle implements IObject {
     int[] linkStatus = {0};
 
     // Le tableau des coordonnées des sommets
-    float[] triangleCoords;
+    float[] triangleCoords = {
+            0.0f, 2.0f, 0.0f,
+            -2.0f, -1.0f, 0.0f,
+            2.0f, -1.0f, 0.0f,
+    };
     // Le tableau des couleurs
     float[] triangleColors;
 
     // Le carré est dessiné avec 2 triangles
     private final short[] Indices = { 0, 1, 2};
+    private float[] center;
 
     private final int vertexStride = COORDS_PER_VERTEX * 4; // le pas entre 2 sommets : 4 bytes per vertex
 
     private final int couleurStride = COULEURS_PER_VERTEX * 4; // le pas entre 2 couleurs
 
-    public Triangle(float[] triangleCoords, float[] triangleColors) {
-        this(triangleCoords, triangleColors, 1, new float[] {0.0f, 0.0f});
+    public Triangle(Colors triangleColors) {
+        this(triangleColors, 1, new float[] {0.0f, 0.0f});
     }
 
-    public Triangle(float[] triangleCoords, float[] triangleColors, float scaling) {
-        this(triangleCoords, triangleColors, scaling, new float[] {0.0f, 0.0f});
+    public Triangle(Colors triangleColors, float scaling) {
+        this(triangleColors, scaling, new float[] {0.0f, 0.0f});
     }
-    public Triangle(float[] triangleCoords, float[] triangleColors, float[] center) {
-        this(triangleCoords, triangleColors, 1, center);
+    public Triangle(Colors triangleColors, float[] center) {
+        this(triangleColors, 1, center);
     }
 
-    public Triangle(float[] triangleCoords, float[] triangleColors, float scaling, float[] center) {
+    public Triangle(Colors triangleColors, float scaling, float[] center) {
+        this.center = center;
+        this.triangleColors = triangleColors.multiplyBy(triangleCoords.length / 3);
 
         //Rescale
         for (int i = 0; i < triangleCoords.length; i++)
@@ -102,10 +104,9 @@ public class Triangle implements IObject {
 
         // y
         for (int i = 1; i < triangleCoords.length; i+=3)
-            triangleCoords[i] += center[0];
+            triangleCoords[i] += center[1];
 
-        this.triangleCoords = triangleCoords;
-        this.triangleColors = triangleColors;
+
 
         // initialisation du buffer pour les vertex (4 bytes par float)
         ByteBuffer bb = ByteBuffer.allocateDirect(triangleCoords.length * 4);
@@ -116,10 +117,10 @@ public class Triangle implements IObject {
 
 
         // initialisation du buffer pour les couleurs (4 bytes par float)
-        ByteBuffer bc = ByteBuffer.allocateDirect(triangleColors.length * 4);
+        ByteBuffer bc = ByteBuffer.allocateDirect(this.triangleColors.length * 4);
         bc.order(ByteOrder.nativeOrder());
         colorBuffer = bc.asFloatBuffer();
-        colorBuffer.put(triangleColors);
+        colorBuffer.put(this.triangleColors);
         colorBuffer.position(0);
 
         // initialisation du buffer des indices
@@ -208,6 +209,10 @@ public class Triangle implements IObject {
         }
 
         return res;
+    }
+
+    public Vector2 getCenter() {
+        return new Vector2(center[0], center[1]);
     }
 
 }

@@ -22,7 +22,6 @@ import android.opengl.GLES30;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Build;
-import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
@@ -34,8 +33,8 @@ import java.util.List;
 public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     private static final String TAG = "MyGLRenderer";
-    //private Square mSquare;
-    private final List<IObject> mObject = new ArrayList<>();
+    private List<IObject> mObject;
+    private final Game game = new Game();
 
     // Les matrices habituelles Model/View/Projection
 
@@ -43,62 +42,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     private final float[] mProjectionMatrix = new float[16];
     private final float[] mViewMatrix = new float[16];
     private final float[] mModelMatrix = new float[16];
-
-    //private float[] mSquarePosition = {0.0f, 0.0f};
-//    private final float[][] mSquarePosition = {{-1f, 0f}, {1f, 0f}};
-    private final float[][] mSquareCoords = {
-            {
-                -1.0f, 1.0f, 0.0f,
-                -1.0f, 0.0f, 0.0f,
-                0.0f, 0.0f, 0.0f,
-                0.0f, 1.0f, 0.0f
-            },
-
-            {
-                0.0f, 0.0f, 0.0f,
-                0.0f, -1.0f, 0.0f,
-                1.0f, -1.0f, 0.0f,
-                1.0f, 0.0f, 0.0f
-            }
-    };
-
-    private final float[][] mSquareColors = {
-            Colors.RED.multiplyBy(4),
-            Colors.GREEN.multiplyBy(4),
-    };
-
-    private final float[][] mTriangleCoords = {
-            {
-                -5.0f, 5.0f, 0.0f,
-                -7.0f, 3.0f, 0.0f,
-                -3.0f, 3.0f, 0.0f,
-            }
-    };
-
-    private final float[][] mTriangleColors = {
-            Colors.BLUE.multiplyBy(3),
-    };
-
-    private final float[][] mRoundCoords = {
-            {
-                5.0f, 10.0f, 0.0f,
-                10.0f, 7.0f, 0.0f,
-                9.0f, 0.0f, 0.0f,
-                1.0f, 0.0f, 0.0f,
-                0.0f, 7.0f, 0.0f,
-
-                4.0f, 6.0f, 0.0f,
-                6.0f, 6.0f, 0.0f,
-                7.0f, 4.0f, 0.0f,
-                5.0f, 2.0f, 0.0f,
-                3.0f, 4.0f, 0.0f,
-            }
-    };
-
-    private final float[][] mRoundColors = {
-            Colors.RED.multiplyBy(10),
-    };
-
 
     /* Première méthode équivalente à la fonction init en OpenGLSL */
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -108,10 +51,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         // la couleur du fond d'écran
         GLES30.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-        mObject.add(new Square(mSquareCoords[0], mSquareColors[0]));
-        mObject.add(new Square(mSquareCoords[1], mSquareColors[1]));
-        mObject.add(new Triangle(mTriangleCoords[0], mTriangleColors[0]));
-        mObject.add(new Round(mRoundCoords[0], mRoundColors[0], 0.5f, new float[] {0f, 0f}));
+        game.initializeCurrentGrid();
+
+        mObject = new ArrayList<>(game.getCurrentGrid().values());
     }
 
     /* Deuxième méthode équivalente à la fonction Display */

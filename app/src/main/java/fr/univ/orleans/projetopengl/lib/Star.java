@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RequiresApi(api = Build.VERSION_CODES.N)
-public class Round implements IObject {
+public class Star implements IObject {
     /* Le vertex shader avec la définition de gl_Position et les variables utiles au fragment shader
      */
     private final String vertexShaderCode =
@@ -60,9 +60,21 @@ public class Round implements IObject {
     int[] linkStatus = {0};
 
     // Le tableau des coordonnées des sommets
-    private final float[] roundCoords;
+    private final float[] starCoords = {
+            0.0f, 5.0f, 0.0f,
+            5.0f, 2.0f, 0.0f,
+            4.0f, -5.0f, 0.0f,
+            -4.0f, -5.0f, 0.0f,
+            -5.0f, 2.0f, 0.0f,
+
+            -1.0f, 1.0f, 0.0f,
+            1.0f, 1.0f, 0.0f,
+            2.0f, -1.0f, 0.0f,
+            0.0f, -3.0f, 0.0f,
+            -2.0f, -1.0f, 0.0f,
+    };
     // Le tableau des couleurs
-    private final float[] roundColors;
+    private final float[] starColors;
 
     // Le carré est dessiné avec 2 triangles
     private final short[] Indices = {
@@ -81,55 +93,56 @@ public class Round implements IObject {
             9, 5, 7,
     };
 
+    private float[] center;
+
     private final int vertexStride = COORDS_PER_VERTEX * 4; // le pas entre 2 sommets : 4 bytes per vertex
 
     private final int couleurStride = COULEURS_PER_VERTEX * 4; // le pas entre 2 couleurs
 
 
-    public Round(float[] roundCoords, float[] roundColors) {
-        this(roundCoords, roundColors, 1);
+    public Star(Colors starColors) {
+        this(starColors, 0.5f);
     }
 
-    public Round(float[] roundCoords, float[] roundColors, float scaling) {
-        this(roundCoords, roundColors, scaling, new float[] {0.0f, 0.0f});
+    public Star(Colors starColors, float scaling) {
+        this(starColors, scaling, new float[] {0.0f, 0.0f});
     }
 
-    public Round(float[] roundCoords, float[] roundColors, float[] center) {
-        this(roundCoords, roundColors, 1, center);
+    public Star(Colors starColors, float[] center) {
+        this(starColors, 0.5f, center);
     }
 
-    public Round(float[] roundCoords, float[] roundColors, float scaling, float[] center) {
+    public Star(Colors starColors, float scaling, float[] center) {
+        this.center = center;
+        this.starColors = starColors.multiplyBy(starCoords.length / 3);
 
         //Rescale
-        for (int i = 0; i < roundCoords.length; i++)
-            roundCoords[i] *= scaling;
+        for (int i = 0; i < starCoords.length; i++)
+            starCoords[i] *= scaling;
 
         // Move to center
         // x
-        for (int i = 0; i < roundCoords.length; i+=3)
-            roundCoords[i] += center[0];
+        for (int i = 0; i < starCoords.length; i+=3)
+            starCoords[i] += center[0];
 
         // y
-        for (int i = 1; i < roundCoords.length; i+=3)
-            roundCoords[i] += center[0];
+        for (int i = 1; i < starCoords.length; i+=3)
+            starCoords[i] += center[1];
 
-
-        this.roundCoords = roundCoords;
-        this.roundColors = roundColors;
 
         // initialisation du buffer pour les vertex (4 bytes par float)
-        ByteBuffer bb = ByteBuffer.allocateDirect(roundCoords.length * 4);
+        ByteBuffer bb = ByteBuffer.allocateDirect(starCoords.length * 4);
         bb.order(ByteOrder.nativeOrder());
         vertexBuffer = bb.asFloatBuffer();
-        vertexBuffer.put(roundCoords);
+        vertexBuffer.put(starCoords);
         vertexBuffer.position(0);
 
 
         // initialisation du buffer pour les couleurs (4 bytes par float)
-        ByteBuffer bc = ByteBuffer.allocateDirect(roundColors.length * 4);
+        ByteBuffer bc = ByteBuffer.allocateDirect(this.starColors.length * 4);
         bc.order(ByteOrder.nativeOrder());
         colorBuffer = bc.asFloatBuffer();
-        colorBuffer.put(roundColors);
+        colorBuffer.put(this.starColors);
         colorBuffer.position(0);
 
         // initialisation du buffer des indices
@@ -213,11 +226,15 @@ public class Round implements IObject {
     public List<Vector3> getCoords() {
         List<Vector3> res = new ArrayList<Vector3>();
 
-        for (int i = 0; i < roundCoords.length; i += 3) {
-            res.add(new Vector3(roundCoords[i], roundCoords[i+1], roundCoords[i+2]));
+        for (int i = 0; i < starCoords.length; i += 3) {
+            res.add(new Vector3(starCoords[i], starCoords[i+1], starCoords[i+2]));
         }
 
         return res;
+    }
+
+    public Vector2 getCenter() {
+        return new Vector2(center[0], center[1]);
     }
 
 }
