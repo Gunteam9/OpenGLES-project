@@ -70,14 +70,14 @@ public class Square implements IObject {
 
     /* les déclarations pour l'équivalent des VBO */
 
-    private final FloatBuffer vertexBuffer; // Pour le buffer des coordonnées des sommets du carré
-    private final ShortBuffer indiceBuffer; // Pour le buffer des indices
-    private final FloatBuffer colorBuffer; // Pour le buffer des couleurs des sommets
+    private FloatBuffer vertexBuffer; // Pour le buffer des coordonnées des sommets du carré
+    private ShortBuffer indiceBuffer; // Pour le buffer des indices
+    private FloatBuffer colorBuffer; // Pour le buffer des couleurs des sommets
 
     /* les déclarations pour les shaders
     Identifiant du programme et pour les variables attribute ou uniform
      */
-    private final int IdProgram; // identifiant du programme pour lier les shaders
+    private int IdProgram; // identifiant du programme pour lier les shaders
     private int IdPosition; // idendifiant (location) pour transmettre les coordonnées au vertex shader
     private int IdCouleur; // identifiant (location) pour transmettre les couleurs
     private int IdMVPMatrix; // identifiant (location) pour transmettre la matrice PxVxM
@@ -88,6 +88,13 @@ public class Square implements IObject {
     int[] linkStatus = {0};
 
     // Le tableau des coordonnées des sommets
+    final float[] initialSquareCoords = {
+            -2.0f, 2.0f, 0.0f,
+            -2.0f, -2.0f, 0.0f,
+            2.0f, -2.0f, 0.0f,
+            2.0f, 2.0f, 0.0f
+    };
+
     float[] squareCoords = {
             -2.0f, 2.0f, 0.0f,
             -2.0f, -2.0f, 0.0f,
@@ -97,41 +104,48 @@ public class Square implements IObject {
     // Le tableau des couleurs
     float[] squareColors;
 
+
     // Le carré est dessiné avec 2 triangles
     private final short[] Indices = { 0, 1, 2, 0, 2, 3 };
-    private float[] center;
+    private Vector2 center;
+    private Colors color;
 
     private final int vertexStride = COORDS_PER_VERTEX * 4; // le pas entre 2 sommets : 4 bytes per vertex
 
     private final int couleurStride = COULEURS_PER_VERTEX * 4; // le pas entre 2 couleurs
 
     public Square(Colors squareColors) {
-        this(squareColors, 1, new float[] {0.0f, 0.0f});
+        this(squareColors, 1, new Vector2(0.0f, 0.0f));
     }
+
     public Square(Colors squareColors, float scaling) {
-        this(squareColors, scaling, new float[] {0.0f, 0.0f});
+        this(squareColors, scaling, new Vector2(0.0f, 0.0f));
     }
-    public Square(Colors squareColors, float[] center) {
+
+    public Square(Colors squareColors, Vector2 center) {
         this(squareColors, 1, center);
     }
-    public Square(Colors squareColors, float scaling, float[] center) {
+
+    public Square(Colors squareColors, float scaling, Vector2 center) {
         this.center = center;
+        this.color = squareColors;
         this.squareColors = squareColors.multiplyBy(squareCoords.length / 3);
 
         //Rescale
         for (int i = 0; i < squareCoords.length; i++)
-            squareCoords[i] *= scaling;
+            initialSquareCoords[i] *= scaling;
 
-        // Move to center
-        // x
-        for (int i = 0; i < squareCoords.length; i+=3)
-            squareCoords[i] += center[0];
-
-        // y
-        for (int i = 1; i < squareCoords.length; i+=3)
-            squareCoords[i] += center[1];
+        move(this.center);
 
 
+
+
+
+    }
+
+    /* La fonction Display */
+    @Override
+    public void draw(float[] mvpMatrix) {
         // initialisation du buffer pour les vertex (4 bytes par float)
         ByteBuffer bb = ByteBuffer.allocateDirect(squareCoords.length * 4);
         bb.order(ByteOrder.nativeOrder());
@@ -171,11 +185,9 @@ public class Square implements IObject {
         GLES30.glGetProgramiv(IdProgram, GLES30.GL_LINK_STATUS,linkStatus,0);
 
 
-    }
 
-    /* La fonction Display */
-    @Override
-    public void draw(float[] mvpMatrix) {
+
+
         // Add program to OpenGL environment
         GLES30.glUseProgram(IdProgram);
 
@@ -235,8 +247,28 @@ public class Square implements IObject {
         return res;
     }
 
+    @Override
     public Vector2 getCenter() {
-        return new Vector2(center[0], center[1]);
+        return center;
+    }
+
+    @Override
+    public Colors getColor() {
+        return color;
+    }
+
+    @Override
+    public void move(Vector2 center) {
+        this.center = center;
+
+        // Move to center
+        // x
+        for (int i = 0; i < squareCoords.length; i+=3)
+            squareCoords[i] = initialSquareCoords[i] + center.x;
+
+        // y
+        for (int i = 1; i < squareCoords.length; i+=3)
+            squareCoords[i] = initialSquareCoords[i] + center.y;
     }
 
 }

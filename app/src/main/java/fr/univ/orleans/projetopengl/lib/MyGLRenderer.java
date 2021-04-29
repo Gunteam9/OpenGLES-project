@@ -28,13 +28,14 @@ import androidx.annotation.RequiresApi;
 import java.util.ArrayList;
 import java.util.List;
 
+import static fr.univ.orleans.projetopengl.lib.OpenGLES20Activity.game;
+
 /* MyGLRenderer implémente l'interface générique GLSurfaceView.Renderer */
 
 public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     private static final String TAG = "MyGLRenderer";
     private List<IObject> mObject;
-    private final Game game = new Game();
 
     // Les matrices habituelles Model/View/Projection
 
@@ -84,14 +85,10 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         et la matrice (ici mModelMatrix) est multipliée par la translation correspondante
          */
 //        Matrix.translateM(mModelMatrix, 0, mSquarePosition[0], mSquarePosition[1], 0);
-        for (int i = 0; i < mObject.size(); i++)
-            Matrix.translateM(mModelMatrix, 0, 0, 0, 0);
-//
-//        for (int i = 0; i < mSquare.length; i++) {
-//            Log.d("Renderer", "mSquarex "+Float.toString(mSquarePosition[i][0]));
-//            Log.d("Renderer", "mSquarey "+Float.toString(mSquarePosition[i][1]));
-//        }
-
+//        Matrix.translateM(mModelMatrix, 0, mObject.get(4).getCenter().x, mObject.get(4).getCenter().y, 0);
+        Matrix.translateM(mModelMatrix, 0, 0, 0, 0);
+//        for (int i = 0; i < mObject.size(); i++)
+//            Matrix.translateM(mModelMatrix, 0, mObject.get(i).getCenter().x, mObject.get(i).getCenter().y, 0);
 
         /* scratch est la matrice PxVxM finale */
         Matrix.multiplyMM(scratch, 0, mMVPMatrix, 0, mModelMatrix, 0);
@@ -127,24 +124,4 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
         return shader;
     }
-
-
-    /* Les méthodes nécessaires à la manipulation de la position finale du carré */
-    public void setPosition(float x, float y) {
-        /*mSquarePosition[0] += x;
-        mSquarePosition[1] += y;*/
-//        mSquarePosition[0][0] = x;
-//        mSquarePosition[0][1] = y;
-
-    }
-
-    /**
-     *
-     * @return Position of object without z axis
-     */
-    public float[] getPosition() {
-        return new float[] {0,0};
-//        return mSquarePosition[0];
-    }
-
 }

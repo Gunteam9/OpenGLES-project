@@ -16,6 +16,8 @@ openGLES.zip HelloOpenGLES20
 
 public class OpenGLES20Activity extends Activity {
 
+    public static final Game game = new Game();
+
     // le conteneur View pour faire du rendu OpenGL
     private GLSurfaceView mGLView;
 
@@ -31,6 +33,7 @@ public class OpenGLES20Activity extends Activity {
         getWindow().setFlags(
                 WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
 
 
         mGLView = new MyGLSurfaceView(this);

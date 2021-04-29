@@ -21,6 +21,12 @@ import android.opengl.GLSurfaceView;
 import android.util.Log;
 import android.view.MotionEvent;
 
+import java.util.Map;
+
+import fr.univ.orleans.projetopengl.exceptions.NothingTouchedException;
+
+import static fr.univ.orleans.projetopengl.lib.OpenGLES20Activity.game;
+
 /* La classe MyGLSurfaceView avec en particulier la gestion des événements
   et la création de l'objet renderer
 
@@ -50,11 +56,6 @@ public class MyGLSurfaceView extends GLSurfaceView {
         setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
     }
 
-    /* pour gérer la translation */
-    private float mPreviousX;
-    private float mPreviousY;
-    private boolean condition = false;
-
     /* Comment interpréter les événements sur l'écran tactile */
     @Override
     public boolean onTouchEvent(MotionEvent e) {
@@ -67,18 +68,12 @@ public class MyGLSurfaceView extends GLSurfaceView {
         float screen_y = getHeight();
 
 
-
         // Des messages si nécessaires */
-        Log.d("message", "x"+Float.toString(x));
-        Log.d("message", "y"+Float.toString(y));
-        Log.d("message", "screen_x="+Float.toString(screen_x));
-        Log.d("message", "screen_y="+Float.toString(screen_y));
+//        Log.d("message", "x"+Float.toString(x));
+//        Log.d("message", "y"+Float.toString(y));
+//        Log.d("message", "screen_x="+Float.toString(screen_x));
+//        Log.d("message", "screen_y="+Float.toString(screen_y));
 
-
-        /* accès aux paramètres du rendu (cf MyGLRenderer.java)
-        soit la position courante du centre du carré
-         */
-        float[] pos = mRenderer.getPosition();
 
         /* Conversion des coordonnées pixel en coordonnées OpenGL
         Attention l'axe x est inversé par rapport à OpenGLSL
@@ -86,39 +81,60 @@ public class MyGLSurfaceView extends GLSurfaceView {
          */
 
         //Permet d'adapter à la taille de création
-        float x_opengl = 20.0f*x/getWidth() - 10.0f;
-        float y_opengl = -20.0f*y/getHeight() + 10.0f;
+        float xOpengl = 20.0f*x/getWidth() - 10.0f;
+        float yOpengl = -20.0f*y/getHeight() + 10.0f;
 
-        Log.d("message","x_opengl="+Float.toString(x_opengl));
-        Log.d("message","y_opengl="+Float.toString(y_opengl));
+//        Log.d("message","x_opengl="+Float.toString(xOpengl));
+//        Log.d("message","y_opengl="+Float.toString(yOpengl));
 
-        /* Le carré représenté a une arête de 2 (oui il va falloir changer cette valeur en dur !!)
-        /* On teste si le point touché appartient au carré ou pas car on ne doit le déplacer que si ce point est dans le carré
-        */
 
-       boolean test_square = ((x_opengl < pos[0]+1.0) && (x_opengl > pos[0]-1.0) && (y_opengl < pos[1]+1.0) && (y_opengl > pos[1]-1.0));
+        switch (e.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                try {
+                    System.out.println("position: " + xOpengl + " " + yOpengl);
+                    int caseTouch = getCaseTouch(new Vector2(xOpengl, yOpengl));
+                    System.out.println("Case touched: " + caseTouch);
+                    int emptyCase = game.getEmptyPosition();
 
-        Log.d("message","test_square="+Boolean.toString(test_square));
-        Log.d("message","condition="+Boolean.toString(condition));
+                    System.out.println("Neighbours: " + game.getNeighbours(emptyCase));
+                    System.out.println("Empty case: " + emptyCase);
+                    if (game.getNeighbours(emptyCase).contains(caseTouch)) {
+                        game.moveObject(caseTouch);
+                    }
 
-        if (condition || test_square) {
-
-            switch (e.getAction()) {
-                /* Lorsqu'on touche l'écran on mémorise juste le point */
-                case MotionEvent.ACTION_DOWN:
-                    mPreviousX = x;
-                    mPreviousY = y;
-                    condition=true;
-                    break;
-                case MotionEvent.ACTION_UP:
-                   mRenderer.setPosition(0.0f,-9.0f);
                     requestRender(); // équivalent de glutPostRedisplay pour lancer le dessin avec les modifications.
-                    condition=false;
 
-            }
+                } catch (NothingTouchedException nothingTouchedException) {
+                    System.out.println("Nothing touched");
+                }
+                break;
         }
 
         return true;
     }
 
+    private int getCaseTouch(Vector2 touchedPoint) throws NothingTouchedException {
+        for (Map.Entry<Integer, IObject> entry : game.getCurrentGrid().entrySet()) {
+
+            Vector2 max = new Vector2(Integer.MIN_VALUE, Integer.MIN_VALUE);
+            Vector2 min = new Vector2(Integer.MAX_VALUE, Integer.MAX_VALUE);
+
+            // We take the north - west point and the south - est point
+            for (Vector3 vec : entry.getValue().getCoords()) {
+                if (max.x < vec.x)
+                    max.x = vec.x;
+                if (max.y < vec.y)
+                    max.y = vec.y;
+                if (min.x > vec.x)
+                    min.x = vec.x;
+                if (min.y > vec.y)
+                    min.y = vec.y;
+            }
+
+            if (touchedPoint.x < max.x && touchedPoint.x > min.x && touchedPoint.y < max.y && touchedPoint.y > min.y)
+                return entry.getKey();
+        }
+
+        throw new NothingTouchedException();
+    }
 }

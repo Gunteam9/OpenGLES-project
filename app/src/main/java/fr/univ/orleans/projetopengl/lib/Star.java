@@ -42,14 +42,14 @@ public class Star implements IObject {
 
     /* les déclarations pour l'équivalent des VBO */
 
-    private final FloatBuffer vertexBuffer; // Pour le buffer des coordonnées des sommets du carré
-    private final ShortBuffer indiceBuffer; // Pour le buffer des indices
-    private final FloatBuffer colorBuffer; // Pour le buffer des couleurs des sommets
+    private FloatBuffer vertexBuffer; // Pour le buffer des coordonnées des sommets du carré
+    private ShortBuffer indiceBuffer; // Pour le buffer des indices
+    private FloatBuffer colorBuffer; // Pour le buffer des couleurs des sommets
 
     /* les déclarations pour les shaders
     Identifiant du programme et pour les variables attribute ou uniform
      */
-    private final int IdProgram; // identifiant du programme pour lier les shaders
+    private int IdProgram; // identifiant du programme pour lier les shaders
     private int IdPosition; // idendifiant (location) pour transmettre les coordonnées au vertex shader
     private int IdCouleur; // identifiant (location) pour transmettre les couleurs
     private int IdMVPMatrix; // identifiant (location) pour transmettre la matrice PxVxM
@@ -60,7 +60,21 @@ public class Star implements IObject {
     int[] linkStatus = {0};
 
     // Le tableau des coordonnées des sommets
-    private final float[] starCoords = {
+    private final float[] initialStarCoords = {
+            0.0f, 5.0f, 0.0f,
+            5.0f, 2.0f, 0.0f,
+            4.0f, -5.0f, 0.0f,
+            -4.0f, -5.0f, 0.0f,
+            -5.0f, 2.0f, 0.0f,
+
+            -1.0f, 1.0f, 0.0f,
+            1.0f, 1.0f, 0.0f,
+            2.0f, -1.0f, 0.0f,
+            0.0f, -3.0f, 0.0f,
+            -2.0f, -1.0f, 0.0f,
+    };
+
+    private float[] starCoords = {
             0.0f, 5.0f, 0.0f,
             5.0f, 2.0f, 0.0f,
             4.0f, -5.0f, 0.0f,
@@ -93,7 +107,8 @@ public class Star implements IObject {
             9, 5, 7,
     };
 
-    private float[] center;
+    private Vector2 center;
+    private Colors color;
 
     private final int vertexStride = COORDS_PER_VERTEX * 4; // le pas entre 2 sommets : 4 bytes per vertex
 
@@ -105,30 +120,30 @@ public class Star implements IObject {
     }
 
     public Star(Colors starColors, float scaling) {
-        this(starColors, scaling, new float[] {0.0f, 0.0f});
+        this(starColors, scaling, new Vector2(0.0f, 0.0f));
     }
 
-    public Star(Colors starColors, float[] center) {
+    public Star(Colors starColors, Vector2 center) {
         this(starColors, 0.5f, center);
     }
 
-    public Star(Colors starColors, float scaling, float[] center) {
+    public Star(Colors starColors, float scaling, Vector2 center) {
         this.center = center;
+        this.color = starColors;
         this.starColors = starColors.multiplyBy(starCoords.length / 3);
 
         //Rescale
         for (int i = 0; i < starCoords.length; i++)
-            starCoords[i] *= scaling;
+            initialStarCoords[i] *= scaling;
 
-        // Move to center
-        // x
-        for (int i = 0; i < starCoords.length; i+=3)
-            starCoords[i] += center[0];
+        move(this.center);
 
-        // y
-        for (int i = 1; i < starCoords.length; i+=3)
-            starCoords[i] += center[1];
 
+    }
+
+    /* La fonction Display */
+    @Override
+    public void draw(float[] mvpMatrix) {
 
         // initialisation du buffer pour les vertex (4 bytes par float)
         ByteBuffer bb = ByteBuffer.allocateDirect(starCoords.length * 4);
@@ -168,12 +183,6 @@ public class Star implements IObject {
         GLES30.glLinkProgram(IdProgram);                  // create OpenGL program executables
         GLES30.glGetProgramiv(IdProgram, GLES30.GL_LINK_STATUS,linkStatus,0);
 
-
-    }
-
-    /* La fonction Display */
-    @Override
-    public void draw(float[] mvpMatrix) {
         // Add program to OpenGL environment
         GLES30.glUseProgram(IdProgram);
 
@@ -232,9 +241,29 @@ public class Star implements IObject {
 
         return res;
     }
-
+    @Override
     public Vector2 getCenter() {
-        return new Vector2(center[0], center[1]);
+        return center;
     }
+
+    @Override
+    public Colors getColor() {
+        return color;
+    }
+
+    @Override
+    public void move(Vector2 center) {
+        this.center = center;
+
+        // Move to center
+        // x
+        for (int i = 0; i < starCoords.length; i+=3)
+            starCoords[i] = initialStarCoords[i] + center.x;
+
+        // y
+        for (int i = 1; i < starCoords.length; i+=3)
+            starCoords[i] = initialStarCoords[i] + center.y;
+    }
+
 
 }
