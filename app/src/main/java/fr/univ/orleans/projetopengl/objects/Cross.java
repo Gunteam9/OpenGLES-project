@@ -15,7 +15,7 @@ import fr.univ.orleans.projetopengl.utils.Colors;
 import fr.univ.orleans.projetopengl.utils.Vector2;
 import fr.univ.orleans.projetopengl.utils.Vector3;
 
-public class CheckMark implements IObject {
+public class Cross implements IObject {
     /* Le vertex shader avec la définition de gl_Position et les variables utiles au fragment shader
      */
     private final String vertexShaderCode =
@@ -62,24 +62,25 @@ public class CheckMark implements IObject {
     int[] linkStatus = {0};
 
     // Le tableau des coordonnées des sommets
-    float[] checkmarkCoords = {
-            -4.0f, -3.0f, 0.0f,
-            -3.0f, -1.0f, 0.0f,
-            1.0f, -3.0f, 0.0f,
-            0.0f, -5.0f, 0.0f,
-            4.0f, 4.0f, 0.0f,
-            2.0f, 5.0f, 0.0f,
-            -1.0f, -2.0f, 0.0f,
+    float[] crossCoords = {
+            -3.5f, -2.5f, 0.0f,
+            -2.5f, -3.5f, 0.0f,
+            2.5f, -3.5f, 0.0f,
+            3.5f, -2.5f, 0.0f,
+            3.5f, 2.5f, 0.0f,
+            2.5f, 3.5f, 0.0f,
+            -2.5f, 3.5f, 0.0f,
+            -3.5f, 2.5f, 0.0f,
     };
     // Le tableau des couleurs
-    float[] checkmarkColor;
+    float[] crossColor;
 
     // Le carré est dessiné avec 2 triangles
     private final short[] Indices = {
-            0, 1, 2,
-            2, 3, 0,
-            2, 4, 5,
-            5, 6, 2,
+            0, 1, 4,
+            4, 5, 0,
+            2, 3, 6,
+            6, 7, 2,
     };
     private Vector2 center;
     private Colors color;
@@ -88,34 +89,34 @@ public class CheckMark implements IObject {
 
     private final int couleurStride = COULEURS_PER_VERTEX * 4; // le pas entre 2 couleurs
 
-    public CheckMark(Colors checkmarkColor) {
-        this(checkmarkColor, 1, new Vector2(0.0f, 0.0f));
+    public Cross(Colors crossColor) {
+        this(crossColor, 1, new Vector2(0.0f, 0.0f));
     }
 
-    public CheckMark(Colors checkmarkColor, float scaling) {
-        this(checkmarkColor, scaling, new Vector2(0.0f, 0.0f));
+    public Cross(Colors crossColor, float scaling) {
+        this(crossColor, scaling, new Vector2(0.0f, 0.0f));
     }
-    public CheckMark(Colors checkmarkColor, Vector2 center) {
-        this(checkmarkColor, 1, center);
+    public Cross(Colors crossColor, Vector2 center) {
+        this(crossColor, 1, center);
     }
 
-    public CheckMark(Colors checkmarkColor, float scaling, Vector2 center) {
+    public Cross(Colors crossColor, float scaling, Vector2 center) {
         this.center = center;
-        this.color = checkmarkColor;
-        this.checkmarkColor = checkmarkColor.multiplyBy(checkmarkCoords.length / 3);
+        this.color = crossColor;
+        this.crossColor = crossColor.multiplyBy(crossCoords.length / 3);
 
         //Rescale
-        for (int i = 0; i < checkmarkCoords.length; i++)
-            checkmarkCoords[i] *= scaling;
+        for (int i = 0; i < crossCoords.length; i++)
+            crossCoords[i] *= scaling;
 
         // Move to center
         // x
-        for (int i = 0; i < checkmarkCoords.length; i+=3)
-            checkmarkCoords[i] += center.x;
+        for (int i = 0; i < crossCoords.length; i+=3)
+            crossCoords[i] += center.x;
 
         // y
-        for (int i = 1; i < checkmarkCoords.length; i+=3)
-            checkmarkCoords[i] += center.y;
+        for (int i = 1; i < crossCoords.length; i+=3)
+            crossCoords[i] += center.y;
 
 
     }
@@ -124,18 +125,18 @@ public class CheckMark implements IObject {
     @Override
     public void draw(float[] mvpMatrix) {
         // initialisation du buffer pour les vertex (4 bytes par float)
-        ByteBuffer bb = ByteBuffer.allocateDirect(checkmarkCoords.length * 4);
+        ByteBuffer bb = ByteBuffer.allocateDirect(crossCoords.length * 4);
         bb.order(ByteOrder.nativeOrder());
         vertexBuffer = bb.asFloatBuffer();
-        vertexBuffer.put(checkmarkCoords);
+        vertexBuffer.put(crossCoords);
         vertexBuffer.position(0);
 
 
         // initialisation du buffer pour les couleurs (4 bytes par float)
-        ByteBuffer bc = ByteBuffer.allocateDirect(this.checkmarkColor.length * 4);
+        ByteBuffer bc = ByteBuffer.allocateDirect(this.crossColor.length * 4);
         bc.order(ByteOrder.nativeOrder());
         colorBuffer = bc.asFloatBuffer();
-        colorBuffer.put(this.checkmarkColor);
+        colorBuffer.put(this.crossColor);
         colorBuffer.position(0);
 
         // initialisation du buffer des indices
@@ -216,8 +217,8 @@ public class CheckMark implements IObject {
     public List<Vector3> getCoords() {
         List<Vector3> res = new ArrayList<Vector3>();
 
-        for (int i = 0; i < checkmarkCoords.length; i += 3) {
-            res.add(new Vector3(checkmarkCoords[i], checkmarkCoords[i+1], checkmarkCoords[i+2]));
+        for (int i = 0; i < crossCoords.length; i += 3) {
+            res.add(new Vector3(crossCoords[i], crossCoords[i+1], crossCoords[i+2]));
         }
 
         return res;

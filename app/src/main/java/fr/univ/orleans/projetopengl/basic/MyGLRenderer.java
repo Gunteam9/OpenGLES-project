@@ -18,6 +18,7 @@ package fr.univ.orleans.projetopengl.basic;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import android.opengl.GLES10;
 import android.opengl.GLES30;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
@@ -27,6 +28,7 @@ import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import fr.univ.orleans.projetopengl.R;
 import fr.univ.orleans.projetopengl.objects.IObject;
@@ -48,6 +50,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     private final float[] mModelMatrix = new float[16];
 
     private List<IObject> objToDraw;
+    private Random random = new Random();
 
     public MyGLRenderer(List<IObject> objToDraw) {
         this.objToDraw = objToDraw;
@@ -70,6 +73,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onDrawFrame(GL10 unused) {
         float[] scratch = new float[16]; // pour stocker une matrice
+
 
         // glClear rien de nouveau on vide le buffer de couleur et de profondeur */
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT | GLES30.GL_DEPTH_BUFFER_BIT);

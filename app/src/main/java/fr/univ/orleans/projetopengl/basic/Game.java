@@ -148,7 +148,7 @@ public class Game {
         }
 
         //End
-        OpenGLES20Activity.getmGLView().drawObject(new CheckMark(Colors.GREEN, 0.5f, new Vector2(0, -15)), true);
+        OpenGLES20Activity.getmGLView().drawObject(new CheckMark(Colors.GREEN, 0.6f, new Vector2(0, -15)), true);
 
     }
 }

@@ -26,7 +26,10 @@ import java.util.List;
 import java.util.Map;
 
 import fr.univ.orleans.projetopengl.exceptions.NothingTouchedException;
+import fr.univ.orleans.projetopengl.launcher.OpenGLES20Activity;
+import fr.univ.orleans.projetopengl.objects.Cross;
 import fr.univ.orleans.projetopengl.objects.IObject;
+import fr.univ.orleans.projetopengl.utils.Colors;
 import fr.univ.orleans.projetopengl.utils.Vector2;
 import fr.univ.orleans.projetopengl.utils.Vector3;
 
@@ -102,13 +105,16 @@ public class MyGLSurfaceView extends GLSurfaceView {
 
 
         if (e.getAction() == MotionEvent.ACTION_DOWN) {
+            clearObjets();
+            
             try {
                 int caseTouch = getCaseTouch(new Vector2(xOpengl, yOpengl));
                 int emptyCase = game.getEmptyPosition();
 
-                if (game.getNeighbours(emptyCase).contains(caseTouch)) {
+                if (game.getNeighbours(emptyCase).contains(caseTouch))
                     game.moveObject(caseTouch);
-                }
+                else
+                    drawObject(new Cross(Colors.RED, new Vector2(0, -15f)), true);
 
                 requestRender(); // équivalent de glutPostRedisplay pour lancer le dessin avec les modifications.
 
@@ -151,4 +157,9 @@ public class MyGLSurfaceView extends GLSurfaceView {
 
         objToDraw.add(obj);
     }
+
+    private void clearObjets() {
+        objToDraw.clear();
+    }
+
 }
