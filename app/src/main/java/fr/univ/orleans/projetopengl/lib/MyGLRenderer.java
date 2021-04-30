@@ -52,7 +52,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         // la couleur du fond d'écran
         GLES30.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-        game.initializeCurrentGrid();
+        game.initializeGrid();
 
         mObject = new ArrayList<>(game.getCurrentGrid().values());
     }

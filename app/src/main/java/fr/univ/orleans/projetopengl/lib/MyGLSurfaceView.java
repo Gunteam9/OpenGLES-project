@@ -64,8 +64,8 @@ public class MyGLSurfaceView extends GLSurfaceView {
         float y = e.getY();
 
         // la taille de l'écran en pixels
-        float screen_x = getWidth();
-        float screen_y = getHeight();
+//        float screen_x = getWidth();
+//        float screen_y = getHeight();
 
 
         // Des messages si nécessaires */
@@ -88,26 +88,22 @@ public class MyGLSurfaceView extends GLSurfaceView {
 //        Log.d("message","y_opengl="+Float.toString(yOpengl));
 
 
-        switch (e.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                try {
-                    System.out.println("position: " + xOpengl + " " + yOpengl);
-                    int caseTouch = getCaseTouch(new Vector2(xOpengl, yOpengl));
-                    System.out.println("Case touched: " + caseTouch);
-                    int emptyCase = game.getEmptyPosition();
+        if (e.getAction() == MotionEvent.ACTION_DOWN) {
+            try {
+                System.out.println("position: " + xOpengl + " " + yOpengl);
+                int caseTouch = getCaseTouch(new Vector2(xOpengl, yOpengl));
+                System.out.println("Case touched: " + caseTouch);
+                int emptyCase = game.getEmptyPosition();
 
-                    System.out.println("Neighbours: " + game.getNeighbours(emptyCase));
-                    System.out.println("Empty case: " + emptyCase);
-                    if (game.getNeighbours(emptyCase).contains(caseTouch)) {
-                        game.moveObject(caseTouch);
-                    }
-
-                    requestRender(); // équivalent de glutPostRedisplay pour lancer le dessin avec les modifications.
-
-                } catch (NothingTouchedException nothingTouchedException) {
-                    System.out.println("Nothing touched");
+                if (game.getNeighbours(emptyCase).contains(caseTouch)) {
+                    game.moveObject(caseTouch);
                 }
-                break;
+
+                requestRender(); // équivalent de glutPostRedisplay pour lancer le dessin avec les modifications.
+
+            } catch (NothingTouchedException nothingTouchedException) {
+                System.out.println("Nothing touched");
+            }
         }
 
         return true;

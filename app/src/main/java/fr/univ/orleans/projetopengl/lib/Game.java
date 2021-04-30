@@ -10,13 +10,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Game {
 
     private final List<Integer> elementsIndex = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8));
-    private final int elementPerLine = 3;
+    private final Random random = new Random();
 
     //Positions of objects on the screen
     public final Map<Integer, Vector2> positions = Stream.of(new Object[][] {
@@ -31,39 +32,51 @@ public class Game {
             {8, new Vector2(5f, 5f)},
     }).collect(Collectors.toMap(data -> (Integer) data[0], data -> (Vector2) data[1]));
 
-    private Map<Integer, IObject> currentGrid = new HashMap<Integer, IObject>();
-    private Map<Integer, IObject> endingGrid = new HashMap<Integer, IObject>();
+    private final int elementPerLine = (int) Math.sqrt(positions.size());
+
+    private final Map<Integer, IObject> currentGrid = new HashMap<Integer, IObject>();
+    private final Map<Integer, IObject> endingGrid = new HashMap<Integer, IObject>();
 
     //Don't create IObject here
     public Game() {
     }
 
-    public void initializeCurrentGrid() {
-        List<Vector2> randomPosition = new ArrayList<Vector2>(this.positions.values());
-        randomPosition.remove(positions.get(8));
-        //Collections.shuffle(randomPosition);
-
-        Map<Integer, Vector2> copyPosition = new HashMap<Integer, Vector2>(positions);
-        copyPosition.remove(8);
-        List<Integer> keys = new ArrayList<Integer>(copyPosition.keySet());
-        Collections.shuffle(keys);
-
+    public void initializeGrid() {
         List<IObject> objects = new ArrayList<IObject>(Arrays.asList(
-                new Square(Colors.RED, randomPosition.get(keys.get(0))),
-                new Square(Colors.GREEN, randomPosition.get(keys.get(1))),
-                new Square(Colors.BLUE, randomPosition.get(keys.get(2))),
-                new Triangle(Colors.RED, randomPosition.get(keys.get(3))),
-                new Triangle(Colors.GREEN, randomPosition.get(keys.get(4))),
-                new Triangle(Colors.BLUE, randomPosition.get(keys.get(5))),
-                new Star(Colors.RED, randomPosition.get(keys.get(6))),
-                new Star(Colors.GREEN, randomPosition.get(keys.get(7)))
+                new Star(Colors.RED, positions.get(0)),
+                new Star(Colors.GREEN, positions.get(1)),
+                null,
+                new Triangle(Colors.RED, positions.get(3)),
+                new Triangle(Colors.GREEN, positions.get(4)),
+                new Triangle(Colors.BLUE, positions.get(5)),
+                new Square(Colors.RED, positions.get(6)),
+                new Square(Colors.GREEN, positions.get(7)),
+                new Square(Colors.BLUE, positions.get(8))
         ));
 
         for (int i = 0; i < objects.size(); i++) {
-            currentGrid.put(keys.get(i), objects.get(i));
-            Log.d("COORDS", objects.get(i).getColor() + " " + objects.get(i).getClass().getSimpleName() + " is at " + keys.get(i) + " " + objects.get(i).getCoords());
+            if (objects.get(i) == null)
+                continue;
+
+            endingGrid.put(i, objects.get(i));
+            Log.d("COORDS", objects.get(i).getColor() + " " + objects.get(i).getClass().getSimpleName() + " is at " + i + " " + objects.get(i).getCoords());
         }
 
+//        int numberOfModifications = 5;
+        int numberOfModifications = random.nextInt(100);
+
+        //Copy the ending grid to the current
+        currentGrid.putAll(endingGrid);
+
+        //Execute random possible moves
+        for (int i = 0; i < numberOfModifications; i++) {
+            //Get neighbours of the the empty position
+            ArrayList<Integer> keys = new ArrayList<>(getNeighbours(getEmptyPosition()));
+            //Select one of them
+            int randomElementInMap = keys.get(random.nextInt(keys.size()));
+            //Move the selected element into the empty position
+            moveObject(randomElementInMap);
+        }
     }
 
     public Map<Integer, IObject> getCurrentGrid() {
@@ -88,11 +101,13 @@ public class Game {
         if (element - elementPerLine >= 0)
             res.add(element - elementPerLine);
         //West
-        if (element + 1 <= positions.size() - 1)
+        if ((element + 1) % elementPerLine != 0)
             res.add(element + 1);
         //Est
-        if (element - 1 >= 0)
+        if (element % elementPerLine != 0)
             res.add(element - 1);
+
+        System.out.println("Neighbours of " + element + " are " + res);
 
         return res;
 
@@ -100,12 +115,9 @@ public class Game {
 
     public void moveObject(int object) {
         IObject obj = currentGrid.get(object);
-        System.out.println("Obj " + obj);
-        System.out.println(obj.getCoords());
         int emptyPosition = this.getEmptyPosition();
         currentGrid.remove(object);
         currentGrid.put(emptyPosition, obj);
         currentGrid.get(emptyPosition).move(positions.get(emptyPosition));
-        System.out.println(currentGrid.get(emptyPosition).getCoords());
     }
 }
