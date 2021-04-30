@@ -14,18 +14,23 @@
  * limitations under the License.
  */
 
-package fr.univ.orleans.projetopengl.lib;
+package fr.univ.orleans.projetopengl.basic;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
-import android.util.Log;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import fr.univ.orleans.projetopengl.exceptions.NothingTouchedException;
+import fr.univ.orleans.projetopengl.objects.IObject;
+import fr.univ.orleans.projetopengl.utils.Vector2;
+import fr.univ.orleans.projetopengl.utils.Vector3;
 
-import static fr.univ.orleans.projetopengl.lib.OpenGLES20Activity.game;
+import static fr.univ.orleans.projetopengl.launcher.OpenGLES20Activity.game;
 
 /* La classe MyGLSurfaceView avec en particulier la gestion des événements
   et la création de l'objet renderer
@@ -40,16 +45,24 @@ public class MyGLSurfaceView extends GLSurfaceView {
     /* Un attribut : le renderer (GLSurfaceView.Renderer est une interface générique disponible) */
     /* MyGLRenderer va implémenter les méthodes de cette interface */
 
-    private final MyGLRenderer mRenderer;
+    private MyGLRenderer mRenderer;
+    private List<IObject> objToDraw = new ArrayList<IObject>();
 
     public MyGLSurfaceView(Context context) {
         super(context);
+    }
+
+    public MyGLSurfaceView(Context context, AttributeSet attributes) {
+        super(context, attributes);
+    }
+
+    public void init(Context context) {
         setEGLConfigChooser(8, 8, 8, 8, 16, 0);
         // Création d'un context OpenGLES 2.0
         setEGLContextClientVersion(3);
 
         // Création du renderer qui va être lié au conteneur View créé
-        mRenderer = new MyGLRenderer();
+        mRenderer = new MyGLRenderer(objToDraw);
         setRenderer(mRenderer);
 
         // Option pour indiquer qu'on redessine uniquement si les données changent
@@ -90,9 +103,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
 
         if (e.getAction() == MotionEvent.ACTION_DOWN) {
             try {
-                System.out.println("position: " + xOpengl + " " + yOpengl);
                 int caseTouch = getCaseTouch(new Vector2(xOpengl, yOpengl));
-                System.out.println("Case touched: " + caseTouch);
                 int emptyCase = game.getEmptyPosition();
 
                 if (game.getNeighbours(emptyCase).contains(caseTouch)) {
@@ -132,5 +143,12 @@ public class MyGLSurfaceView extends GLSurfaceView {
         }
 
         throw new NothingTouchedException();
+    }
+
+    public void drawObject(IObject obj, boolean cleanOther) {
+        if (cleanOther)
+            objToDraw.clear();
+
+        objToDraw.add(obj);
     }
 }

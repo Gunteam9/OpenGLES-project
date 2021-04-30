@@ -1,6 +1,10 @@
-package fr.univ.orleans.projetopengl.lib;
+package fr.univ.orleans.projetopengl.objects;
 
 import java.util.List;
+
+import fr.univ.orleans.projetopengl.utils.Colors;
+import fr.univ.orleans.projetopengl.utils.Vector2;
+import fr.univ.orleans.projetopengl.utils.Vector3;
 
 public interface IObject {
     public void draw(float[] mvpMatrix);

@@ -1,10 +1,7 @@
-package fr.univ.orleans.projetopengl.lib;
+package fr.univ.orleans.projetopengl.objects;
 
 import android.opengl.GLES10;
 import android.opengl.GLES30;
-import android.os.Build;
-
-import androidx.annotation.RequiresApi;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -13,9 +10,12 @@ import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.univ.orleans.projetopengl.basic.MyGLRenderer;
+import fr.univ.orleans.projetopengl.utils.Colors;
+import fr.univ.orleans.projetopengl.utils.Vector2;
+import fr.univ.orleans.projetopengl.utils.Vector3;
 
-@RequiresApi(api = Build.VERSION_CODES.N)
-public class Triangle implements IObject {
+public class CheckMark implements IObject {
     /* Le vertex shader avec la définition de gl_Position et les variables utiles au fragment shader
      */
     private final String vertexShaderCode =
@@ -62,21 +62,25 @@ public class Triangle implements IObject {
     int[] linkStatus = {0};
 
     // Le tableau des coordonnées des sommets
-    final float[] initialTriangleCoords = {
-            0.0f, 2.0f, 0.0f,
-            -2.0f, -1.5f, 0.0f,
-            2.0f, -1.5f, 0.0f,
-    };
-    float[] triangleCoords = {
-            0.0f, 2.0f, 0.0f,
-            -2.0f, -1.5f, 0.0f,
-            2.0f, -1.5f, 0.0f,
+    float[] checkmarkCoords = {
+            -4.0f, -3.0f, 0.0f,
+            -3.0f, -1.0f, 0.0f,
+            1.0f, -3.0f, 0.0f,
+            0.0f, -5.0f, 0.0f,
+            4.0f, 4.0f, 0.0f,
+            2.0f, 5.0f, 0.0f,
+            -1.0f, -2.0f, 0.0f,
     };
     // Le tableau des couleurs
-    float[] triangleColors;
+    float[] checkmarkColor;
 
     // Le carré est dessiné avec 2 triangles
-    private final short[] Indices = { 0, 1, 2};
+    private final short[] Indices = {
+            0, 1, 2,
+            2, 3, 0,
+            2, 4, 5,
+            5, 6, 2,
+    };
     private Vector2 center;
     private Colors color;
 
@@ -84,27 +88,34 @@ public class Triangle implements IObject {
 
     private final int couleurStride = COULEURS_PER_VERTEX * 4; // le pas entre 2 couleurs
 
-    public Triangle(Colors triangleColors) {
-        this(triangleColors, 1, new Vector2(0.0f, 0.0f));
+    public CheckMark(Colors checkmarkColor) {
+        this(checkmarkColor, 1, new Vector2(0.0f, 0.0f));
     }
 
-    public Triangle(Colors triangleColors, float scaling) {
-        this(triangleColors, scaling, new Vector2(0.0f, 0.0f));
+    public CheckMark(Colors checkmarkColor, float scaling) {
+        this(checkmarkColor, scaling, new Vector2(0.0f, 0.0f));
     }
-    public Triangle(Colors triangleColors, Vector2 center) {
-        this(triangleColors, 1, center);
+    public CheckMark(Colors checkmarkColor, Vector2 center) {
+        this(checkmarkColor, 1, center);
     }
 
-    public Triangle(Colors triangleColors, float scaling, Vector2 center) {
+    public CheckMark(Colors checkmarkColor, float scaling, Vector2 center) {
         this.center = center;
-        this.color = triangleColors;
-        this.triangleColors = triangleColors.multiplyBy(triangleCoords.length / 3);
+        this.color = checkmarkColor;
+        this.checkmarkColor = checkmarkColor.multiplyBy(checkmarkCoords.length / 3);
 
         //Rescale
-        for (int i = 0; i < triangleCoords.length; i++)
-            initialTriangleCoords[i] *= scaling;
+        for (int i = 0; i < checkmarkCoords.length; i++)
+            checkmarkCoords[i] *= scaling;
 
-        move(this.center);
+        // Move to center
+        // x
+        for (int i = 0; i < checkmarkCoords.length; i+=3)
+            checkmarkCoords[i] += center.x;
+
+        // y
+        for (int i = 1; i < checkmarkCoords.length; i+=3)
+            checkmarkCoords[i] += center.y;
 
 
     }
@@ -113,18 +124,18 @@ public class Triangle implements IObject {
     @Override
     public void draw(float[] mvpMatrix) {
         // initialisation du buffer pour les vertex (4 bytes par float)
-        ByteBuffer bb = ByteBuffer.allocateDirect(triangleCoords.length * 4);
+        ByteBuffer bb = ByteBuffer.allocateDirect(checkmarkCoords.length * 4);
         bb.order(ByteOrder.nativeOrder());
         vertexBuffer = bb.asFloatBuffer();
-        vertexBuffer.put(triangleCoords);
+        vertexBuffer.put(checkmarkCoords);
         vertexBuffer.position(0);
 
 
         // initialisation du buffer pour les couleurs (4 bytes par float)
-        ByteBuffer bc = ByteBuffer.allocateDirect(this.triangleColors.length * 4);
+        ByteBuffer bc = ByteBuffer.allocateDirect(this.checkmarkColor.length * 4);
         bc.order(ByteOrder.nativeOrder());
         colorBuffer = bc.asFloatBuffer();
-        colorBuffer.put(this.triangleColors);
+        colorBuffer.put(this.checkmarkColor);
         colorBuffer.position(0);
 
         // initialisation du buffer des indices
@@ -196,16 +207,17 @@ public class Triangle implements IObject {
 
     }
 
-    /**
-     *
-     * @return Coords in a List<Vector3>
-     */
+    @Override
+    public Colors getColor() {
+        return color;
+    }
+
     @Override
     public List<Vector3> getCoords() {
         List<Vector3> res = new ArrayList<Vector3>();
 
-        for (int i = 0; i < triangleCoords.length; i += 3) {
-            res.add(new Vector3(triangleCoords[i], triangleCoords[i+1], triangleCoords[i+2]));
+        for (int i = 0; i < checkmarkCoords.length; i += 3) {
+            res.add(new Vector3(checkmarkCoords[i], checkmarkCoords[i+1], checkmarkCoords[i+2]));
         }
 
         return res;
@@ -217,22 +229,7 @@ public class Triangle implements IObject {
     }
 
     @Override
-    public Colors getColor() {
-        return color;
+    public void move(Vector2 newCenter) {
+        //Item can't be move
     }
-
-    @Override
-    public void move(Vector2 center) {
-        this.center = center;
-
-        // Move to center
-        // x
-        for (int i = 0; i < triangleCoords.length; i+=3)
-            triangleCoords[i] = initialTriangleCoords[i] + center.x;
-
-        // y
-        for (int i = 1; i < triangleCoords.length; i+=3)
-            triangleCoords[i] = initialTriangleCoords[i] + center.y;
-    }
-
 }

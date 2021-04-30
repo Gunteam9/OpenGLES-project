@@ -1,4 +1,4 @@
-package fr.univ.orleans.projetopengl.lib;
+package fr.univ.orleans.projetopengl.utils;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -9,7 +9,6 @@ public enum Colors {
     GREEN(new float[] {0, 1, 0, 1}),
     //On remplace le jaune par le bleu
     BLUE(new float[] {0, 0, 1, 1});
-
 
     public final float[] val;
 

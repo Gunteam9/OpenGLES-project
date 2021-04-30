@@ -1,23 +1,30 @@
-package fr.univ.orleans.projetopengl.lib;
+package fr.univ.orleans.projetopengl.basic;
 
 import android.util.Log;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import fr.univ.orleans.projetopengl.launcher.OpenGLES20Activity;
+import fr.univ.orleans.projetopengl.objects.CheckMark;
+import fr.univ.orleans.projetopengl.utils.Colors;
+import fr.univ.orleans.projetopengl.objects.IObject;
+import fr.univ.orleans.projetopengl.objects.Square;
+import fr.univ.orleans.projetopengl.objects.Star;
+import fr.univ.orleans.projetopengl.objects.Triangle;
+import fr.univ.orleans.projetopengl.utils.Vector2;
 
 public class Game {
 
     private final List<Integer> elementsIndex = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8));
     private final Random random = new Random();
+    private boolean isInitializationFinished = false;
 
     //Positions of objects on the screen
     public final Map<Integer, Vector2> positions = Stream.of(new Object[][] {
@@ -62,8 +69,8 @@ public class Game {
             Log.d("COORDS", objects.get(i).getColor() + " " + objects.get(i).getClass().getSimpleName() + " is at " + i + " " + objects.get(i).getCoords());
         }
 
-//        int numberOfModifications = 5;
-        int numberOfModifications = random.nextInt(100);
+        int numberOfModifications = 5;
+//        int numberOfModifications = random.nextInt(100);
 
         //Copy the ending grid to the current
         currentGrid.putAll(endingGrid);
@@ -77,6 +84,8 @@ public class Game {
             //Move the selected element into the empty position
             moveObject(randomElementInMap);
         }
+
+        isInitializationFinished = true;
     }
 
     public Map<Integer, IObject> getCurrentGrid() {
@@ -119,5 +128,27 @@ public class Game {
         currentGrid.remove(object);
         currentGrid.put(emptyPosition, obj);
         currentGrid.get(emptyPosition).move(positions.get(emptyPosition));
+
+
+        if (!isInitializationFinished)
+            return;
+
+        int current = 0;
+        int ending = 0;
+
+        for (int i = 0; i < positions.size(); i++) {
+            if (currentGrid.get(current) != null) {
+                //If there is a difference
+                if (currentGrid.get(current) != endingGrid.get(ending))
+                    return;
+            }
+
+            current++;
+            ending++;
+        }
+
+        //End
+        OpenGLES20Activity.getmGLView().drawObject(new CheckMark(Colors.GREEN, 0.5f, new Vector2(0, -15)), true);
+
     }
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package fr.univ.orleans.projetopengl.lib;
+package fr.univ.orleans.projetopengl.basic;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -28,7 +28,10 @@ import androidx.annotation.RequiresApi;
 import java.util.ArrayList;
 import java.util.List;
 
-import static fr.univ.orleans.projetopengl.lib.OpenGLES20Activity.game;
+import fr.univ.orleans.projetopengl.R;
+import fr.univ.orleans.projetopengl.objects.IObject;
+
+import static fr.univ.orleans.projetopengl.launcher.OpenGLES20Activity.game;
 
 /* MyGLRenderer implémente l'interface générique GLSurfaceView.Renderer */
 
@@ -43,6 +46,12 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     private final float[] mProjectionMatrix = new float[16];
     private final float[] mViewMatrix = new float[16];
     private final float[] mModelMatrix = new float[16];
+
+    private List<IObject> objToDraw;
+
+    public MyGLRenderer(List<IObject> objToDraw) {
+        this.objToDraw = objToDraw;
+    }
 
     /* Première méthode équivalente à la fonction init en OpenGLSL */
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -95,6 +104,10 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
         /* on appelle la méthode dessin du carré élémentaire */
         for (IObject obj : mObject) {
+            obj.draw(scratch);
+        }
+
+        for (IObject obj : objToDraw) {
             obj.draw(scratch);
         }
     }

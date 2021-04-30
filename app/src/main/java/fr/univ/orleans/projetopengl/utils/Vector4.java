@@ -1,4 +1,4 @@
-package fr.univ.orleans.projetopengl.lib;
+package fr.univ.orleans.projetopengl.utils;
 
 public class Vector4 {
     public float x;

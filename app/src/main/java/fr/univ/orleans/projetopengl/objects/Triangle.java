@@ -1,4 +1,4 @@
-package fr.univ.orleans.projetopengl.lib;
+package fr.univ.orleans.projetopengl.objects;
 
 import android.opengl.GLES10;
 import android.opengl.GLES30;
@@ -13,8 +13,14 @@ import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.univ.orleans.projetopengl.utils.Colors;
+import fr.univ.orleans.projetopengl.basic.MyGLRenderer;
+import fr.univ.orleans.projetopengl.utils.Vector2;
+import fr.univ.orleans.projetopengl.utils.Vector3;
+
+
 @RequiresApi(api = Build.VERSION_CODES.N)
-public class Star implements IObject {
+public class Triangle implements IObject {
     /* Le vertex shader avec la définition de gl_Position et les variables utiles au fragment shader
      */
     private final String vertexShaderCode =
@@ -29,6 +35,7 @@ public class Star implements IObject {
                     "gl_Position = uMVPMatrix * vec4(vPosition,1.0);\n" +
                     "Couleur = vCouleur;\n"+
                     "}\n";
+
 
     private final String fragmentShaderCode =
             "#version 300 es\n"+
@@ -60,53 +67,21 @@ public class Star implements IObject {
     int[] linkStatus = {0};
 
     // Le tableau des coordonnées des sommets
-    private final float[] initialStarCoords = {
-            0.0f, 5.0f, 0.0f,
-            5.0f, 2.0f, 0.0f,
-            4.0f, -5.0f, 0.0f,
-            -4.0f, -5.0f, 0.0f,
-            -5.0f, 2.0f, 0.0f,
-
-            -1.0f, 1.0f, 0.0f,
-            1.0f, 1.0f, 0.0f,
-            2.0f, -1.0f, 0.0f,
-            0.0f, -3.0f, 0.0f,
-            -2.0f, -1.0f, 0.0f,
+    final float[] initialTriangleCoords = {
+            0.0f, 2.0f, 0.0f,
+            -2.0f, -1.5f, 0.0f,
+            2.0f, -1.5f, 0.0f,
     };
-
-    private float[] starCoords = {
-            0.0f, 5.0f, 0.0f,
-            5.0f, 2.0f, 0.0f,
-            4.0f, -5.0f, 0.0f,
-            -4.0f, -5.0f, 0.0f,
-            -5.0f, 2.0f, 0.0f,
-
-            -1.0f, 1.0f, 0.0f,
-            1.0f, 1.0f, 0.0f,
-            2.0f, -1.0f, 0.0f,
-            0.0f, -3.0f, 0.0f,
-            -2.0f, -1.0f, 0.0f,
+    float[] triangleCoords = {
+            0.0f, 2.0f, 0.0f,
+            -2.0f, -1.5f, 0.0f,
+            2.0f, -1.5f, 0.0f,
     };
     // Le tableau des couleurs
-    private final float[] starColors;
+    float[] triangleColors;
 
     // Le carré est dessiné avec 2 triangles
-    private final short[] Indices = {
-            //Branch
-            0, 5, 6,
-            1, 6, 7,
-            2, 7, 8,
-            3, 8, 9,
-            4, 9, 5,
-
-            //Center
-            5, 6, 8,
-            6, 7, 9,
-            7, 8, 5,
-            8, 9, 6,
-            9, 5, 7,
-    };
-
+    private final short[] Indices = { 0, 1, 2};
     private Vector2 center;
     private Colors color;
 
@@ -114,27 +89,25 @@ public class Star implements IObject {
 
     private final int couleurStride = COULEURS_PER_VERTEX * 4; // le pas entre 2 couleurs
 
-
-    public Star(Colors starColors) {
-        this(starColors, 0.5f);
+    public Triangle(Colors triangleColors) {
+        this(triangleColors, 1, new Vector2(0.0f, 0.0f));
     }
 
-    public Star(Colors starColors, float scaling) {
-        this(starColors, scaling, new Vector2(0.0f, 0.0f));
+    public Triangle(Colors triangleColors, float scaling) {
+        this(triangleColors, scaling, new Vector2(0.0f, 0.0f));
+    }
+    public Triangle(Colors triangleColors, Vector2 center) {
+        this(triangleColors, 1, center);
     }
 
-    public Star(Colors starColors, Vector2 center) {
-        this(starColors, 0.5f, center);
-    }
-
-    public Star(Colors starColors, float scaling, Vector2 center) {
+    public Triangle(Colors triangleColors, float scaling, Vector2 center) {
         this.center = center;
-        this.color = starColors;
-        this.starColors = starColors.multiplyBy(starCoords.length / 3);
+        this.color = triangleColors;
+        this.triangleColors = triangleColors.multiplyBy(triangleCoords.length / 3);
 
         //Rescale
-        for (int i = 0; i < starCoords.length; i++)
-            initialStarCoords[i] *= scaling;
+        for (int i = 0; i < triangleCoords.length; i++)
+            initialTriangleCoords[i] *= scaling;
 
         move(this.center);
 
@@ -144,20 +117,19 @@ public class Star implements IObject {
     /* La fonction Display */
     @Override
     public void draw(float[] mvpMatrix) {
-
         // initialisation du buffer pour les vertex (4 bytes par float)
-        ByteBuffer bb = ByteBuffer.allocateDirect(starCoords.length * 4);
+        ByteBuffer bb = ByteBuffer.allocateDirect(triangleCoords.length * 4);
         bb.order(ByteOrder.nativeOrder());
         vertexBuffer = bb.asFloatBuffer();
-        vertexBuffer.put(starCoords);
+        vertexBuffer.put(triangleCoords);
         vertexBuffer.position(0);
 
 
         // initialisation du buffer pour les couleurs (4 bytes par float)
-        ByteBuffer bc = ByteBuffer.allocateDirect(this.starColors.length * 4);
+        ByteBuffer bc = ByteBuffer.allocateDirect(this.triangleColors.length * 4);
         bc.order(ByteOrder.nativeOrder());
         colorBuffer = bc.asFloatBuffer();
-        colorBuffer.put(this.starColors);
+        colorBuffer.put(this.triangleColors);
         colorBuffer.position(0);
 
         // initialisation du buffer des indices
@@ -182,6 +154,8 @@ public class Star implements IObject {
         GLES30.glAttachShader(IdProgram, fragmentShader); // add the fragment shader to program
         GLES30.glLinkProgram(IdProgram);                  // create OpenGL program executables
         GLES30.glGetProgramiv(IdProgram, GLES30.GL_LINK_STATUS,linkStatus,0);
+
+
 
         // Add program to OpenGL environment
         GLES30.glUseProgram(IdProgram);
@@ -235,12 +209,13 @@ public class Star implements IObject {
     public List<Vector3> getCoords() {
         List<Vector3> res = new ArrayList<Vector3>();
 
-        for (int i = 0; i < starCoords.length; i += 3) {
-            res.add(new Vector3(starCoords[i], starCoords[i+1], starCoords[i+2]));
+        for (int i = 0; i < triangleCoords.length; i += 3) {
+            res.add(new Vector3(triangleCoords[i], triangleCoords[i+1], triangleCoords[i+2]));
         }
 
         return res;
     }
+
     @Override
     public Vector2 getCenter() {
         return center;
@@ -257,13 +232,12 @@ public class Star implements IObject {
 
         // Move to center
         // x
-        for (int i = 0; i < starCoords.length; i+=3)
-            starCoords[i] = initialStarCoords[i] + center.x;
+        for (int i = 0; i < triangleCoords.length; i+=3)
+            triangleCoords[i] = initialTriangleCoords[i] + center.x;
 
         // y
-        for (int i = 1; i < starCoords.length; i+=3)
-            starCoords[i] = initialStarCoords[i] + center.y;
+        for (int i = 1; i < triangleCoords.length; i+=3)
+            triangleCoords[i] = initialTriangleCoords[i] + center.y;
     }
-
 
 }
