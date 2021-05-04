@@ -84,12 +84,13 @@ public class MyGLSurfaceView extends GLSurfaceView {
 //        float screen_y = getHeight();
 
 
+
+
         // Des messages si nécessaires */
 //        Log.d("message", "x"+Float.toString(x));
 //        Log.d("message", "y"+Float.toString(y));
 //        Log.d("message", "screen_x="+Float.toString(screen_x));
 //        Log.d("message", "screen_y="+Float.toString(screen_y));
-
 
         /* Conversion des coordonnées pixel en coordonnées OpenGL
         Attention l'axe x est inversé par rapport à OpenGLSL
@@ -97,8 +98,11 @@ public class MyGLSurfaceView extends GLSurfaceView {
          */
 
         //Permet d'adapter à la taille de création
-        float xOpengl = 20.0f*x/getWidth() - 10.0f;
-        float yOpengl = -20.0f*y/getHeight() + 10.0f;
+//        float xOpengl = 20.0f*x/getWidth() - 10.0f;
+//        float yOpengl = -20.0f*y/getHeight() + 10.0f;
+        System.out.println("width: " + getWidth() + " height " + getHeight());
+        float xOpengl = getWidth() / 50f * x / getWidth() - getWidth() / 100f;
+        float yOpengl = -getHeight() / 50f * y / getHeight() + getHeight() / 100f;
 
 //        Log.d("message","x_opengl="+Float.toString(xOpengl));
 //        Log.d("message","y_opengl="+Float.toString(yOpengl));
