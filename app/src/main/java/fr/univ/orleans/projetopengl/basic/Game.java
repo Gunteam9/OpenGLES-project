@@ -1,6 +1,9 @@
 package fr.univ.orleans.projetopengl.basic;
 
+import android.os.Build;
 import android.util.Log;
+
+import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,7 +28,8 @@ public class Game {
     private final List<Integer> elementsIndex = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8));
     private final Random random = new Random();
     private boolean isInitializationFinished = false;
-
+    private CallBack callBack = null;
+    private int score;
     //Positions of objects on the screen
     public final Map<Integer, Vector2> positions = Stream.of(new Object[][] {
             {0, new Vector2(-5f, -5f)},
@@ -46,8 +50,10 @@ public class Game {
 
     //Don't create IObject here
     public Game() {
+
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void initializeGrid() {
         List<IObject> objects = new ArrayList<IObject>(Arrays.asList(
                 new Star(Colors.RED, positions.get(0)),
@@ -92,6 +98,8 @@ public class Game {
         return currentGrid;
     }
 
+    public int getScore() { return score; }
+
     public int getEmptyPosition() {
         List<Integer> res = new ArrayList<>(elementsIndex);
         res.removeAll(currentGrid.keySet());
@@ -122,6 +130,8 @@ public class Game {
 
     }
 
+
+
     public void moveObject(int object) {
         IObject obj = currentGrid.get(object);
         int emptyPosition = this.getEmptyPosition();
@@ -133,6 +143,7 @@ public class Game {
         if (!isInitializationFinished)
             return;
 
+        this.score++;
         int current = 0;
         int ending = 0;
 
@@ -147,8 +158,13 @@ public class Game {
             ending++;
         }
 
+
         //End
         OpenGLES20Activity.getmGLView().drawObject(new CheckMark(Colors.GREEN, 0.6f, new Vector2(0, -15)), true);
 
+    }
+
+    public boolean isInitializationFinished() {
+        return isInitializationFinished;
     }
 }

@@ -20,13 +20,13 @@ import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import fr.univ.orleans.projetopengl.exceptions.NothingTouchedException;
-import fr.univ.orleans.projetopengl.launcher.OpenGLES20Activity;
 import fr.univ.orleans.projetopengl.objects.Cross;
 import fr.univ.orleans.projetopengl.objects.IObject;
 import fr.univ.orleans.projetopengl.utils.Colors;
@@ -50,6 +50,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
 
     private MyGLRenderer mRenderer;
     private List<IObject> objToDraw = new ArrayList<IObject>();
+    TextView score;
 
     public MyGLSurfaceView(Context context) {
         super(context);
@@ -59,10 +60,11 @@ public class MyGLSurfaceView extends GLSurfaceView {
         super(context, attributes);
     }
 
-    public void init(Context context) {
+    public void init(Context context, TextView score) {
         setEGLConfigChooser(8, 8, 8, 8, 16, 0);
         // Création d'un context OpenGLES 2.0
         setEGLContextClientVersion(3);
+        this.score = score;
 
         // Création du renderer qui va être lié au conteneur View créé
         mRenderer = new MyGLRenderer(objToDraw);
@@ -116,7 +118,11 @@ public class MyGLSurfaceView extends GLSurfaceView {
                 int emptyCase = game.getEmptyPosition();
 
                 if (game.getNeighbours(emptyCase).contains(caseTouch))
+                {
                     game.moveObject(caseTouch);
+                    System.out.println(game.getScore());
+                    this.score.setText(String.valueOf(game.getScore()));
+                }
                 else
                     drawObject(new Cross(Colors.RED, new Vector2(0, -15f)), true);
 
