@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import fr.univ.orleans.projetopengl.audio.AudioManager;
 import fr.univ.orleans.projetopengl.exceptions.NothingTouchedException;
 import fr.univ.orleans.projetopengl.objects.Cross;
 import fr.univ.orleans.projetopengl.objects.IObject;
@@ -51,6 +52,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
     private MyGLRenderer mRenderer;
     private List<IObject> objToDraw = new ArrayList<IObject>();
     TextView score;
+    AudioManager audioManager;
 
     public MyGLSurfaceView(Context context) {
         super(context);
@@ -61,6 +63,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
     }
 
     public void init(Context context, TextView score) {
+        audioManager = AudioManager.instance;
         setEGLConfigChooser(8, 8, 8, 8, 16, 0);
         // Création d'un context OpenGLES 2.0
         setEGLContextClientVersion(3);
@@ -124,7 +127,10 @@ public class MyGLSurfaceView extends GLSurfaceView {
                     this.score.setText(String.valueOf(game.getScore()));
                 }
                 else
+                {
+                    audioManager.startAudio(AudioManager.TAG_FAIL);
                     drawObject(new Cross(Colors.RED, new Vector2(0, -15f)), true);
+                }
 
                 requestRender(); // équivalent de glutPostRedisplay pour lancer le dessin avec les modifications.
 

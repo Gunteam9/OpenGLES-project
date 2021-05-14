@@ -14,6 +14,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import fr.univ.orleans.projetopengl.audio.AudioManager;
 import fr.univ.orleans.projetopengl.launcher.OpenGLES20Activity;
 import fr.univ.orleans.projetopengl.objects.CheckMark;
 import fr.univ.orleans.projetopengl.utils.Colors;
@@ -28,9 +29,9 @@ public class Game {
     private final List<Integer> elementsIndex = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8));
     private final Random random = new Random();
     private boolean isInitializationFinished = false;
-    private CallBack callBack = null;
-    private int score;
+    private int score = 0;
     private boolean hasWon = false;
+    private AudioManager audioManager;
     //Positions of objects on the screen
     public final Map<Integer, Vector2> positions = Stream.of(new Object[][] {
             {0, new Vector2(-5f, -5f)},
@@ -51,6 +52,7 @@ public class Game {
 
     //Don't create IObject here
     public Game() {
+        audioManager = AudioManager.instance;
 
     }
 
@@ -149,6 +151,7 @@ public class Game {
             return;
 
         this.score++;
+        audioManager.startAudio(AudioManager.TAG_OBJECT_MOVED);
         int current = 0;
         int ending = 0;
 
@@ -165,6 +168,7 @@ public class Game {
 
         hasWon = true;
         //End
+        audioManager.startAudio(AudioManager.TAG_SUCCES);
         OpenGLES20Activity.getmGLView().drawObject(new CheckMark(Colors.GREEN, 0.6f, new Vector2(0, -15)), true);
 
     }

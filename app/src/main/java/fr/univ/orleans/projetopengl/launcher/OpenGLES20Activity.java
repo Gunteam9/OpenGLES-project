@@ -1,8 +1,6 @@
 package fr.univ.orleans.projetopengl.launcher;
 
 
-import android.content.Intent;
-import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -12,13 +10,9 @@ import android.widget.TextView;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentActivity;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import fr.univ.orleans.projetopengl.audio.AudioManager;
 import fr.univ.orleans.projetopengl.R;
 import fr.univ.orleans.projetopengl.alerts.GameOverFragment;
-import fr.univ.orleans.projetopengl.basic.CallBack;
 import fr.univ.orleans.projetopengl.basic.Game;
 import fr.univ.orleans.projetopengl.basic.MyGLSurfaceView;
 
@@ -26,15 +20,15 @@ import fr.univ.orleans.projetopengl.basic.MyGLSurfaceView;
 openGLES.zip HelloOpenGLES20
  */
 
-public class OpenGLES20Activity extends FragmentActivity implements CallBack {
+public class OpenGLES20Activity extends FragmentActivity {
 
-    private final long totalTime = 9000; // = 1 minute
+    private final long totalTime = 9000; // nombre de millisecondes
     private long countDownInterval = 1000; // combien de millisecondes sont enlevés à chaque appel
     private static MyGLSurfaceView glSurfaceView;
     private TextView timerText;
     private TextView score;
     public static final Game game = new Game();
-    public static AudioManager audioManager = new AudioManager();
+    public static AudioManager audioManager;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -46,7 +40,13 @@ public class OpenGLES20Activity extends FragmentActivity implements CallBack {
         // le conteneur View pour faire du rendu OpenGL
         glSurfaceView = findViewById(R.id.glSurfaceView);
         glSurfaceView.init(this, this.score);
+        audioManager = AudioManager.instance;
+
         audioManager.addAudio(this, R.raw.music, AudioManager.TAG_MUSIC);
+        audioManager.addAudio(this, R.raw.error, AudioManager.TAG_FAIL);
+        audioManager.addAudio(this, R.raw.move, AudioManager.TAG_OBJECT_MOVED);
+        audioManager.addAudio(this, R.raw.success, AudioManager.TAG_SUCCES);
+
         audioManager.startAudio(AudioManager.TAG_MUSIC);
         this.startCounter();
 
@@ -102,10 +102,5 @@ public class OpenGLES20Activity extends FragmentActivity implements CallBack {
 
     public static MyGLSurfaceView getmGLView() {
         return glSurfaceView;
-    }
-
-    @Override
-    public void updateScore(String score) {
-        this.score.setText(score);
     }
 }
