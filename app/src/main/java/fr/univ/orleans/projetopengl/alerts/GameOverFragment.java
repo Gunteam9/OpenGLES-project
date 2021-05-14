@@ -9,6 +9,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.StringRes;
 import androidx.fragment.app.DialogFragment;
 
 import java.util.Objects;
@@ -35,8 +36,7 @@ public class GameOverFragment extends DialogFragment {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         StringBuilder stringBuilder = new StringBuilder();
-        System.out.println(this.scoreGameOver);
-        stringBuilder.append(R.string.game_over).append(this.scoreGameOver);
+        stringBuilder.append(getResources().getString(R.string.game_over)).append(" ").append(this.scoreGameOver);
         builder.setMessage(stringBuilder.toString())
                 .setPositiveButton(R.string.reset, (dialog, which) -> Game.getInstance().initializeGrid(OpenGLES20Activity.getmGLView()))
                 .setNegativeButton(R.string.quit, (dialog, which) -> {

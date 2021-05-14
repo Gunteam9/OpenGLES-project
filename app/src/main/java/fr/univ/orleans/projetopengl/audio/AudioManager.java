@@ -7,18 +7,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AudioManager {
+    private static final AudioManager instance = new AudioManager();
 
-    private Map<String, MediaPlayer> audios = new HashMap<>();
+    private final Map<String, MediaPlayer> audios = new HashMap<>();
     public static final String TAG_MUSIC = "Musique";
     public static final String TAG_SUCCES = "Son_Succes";
     public static final String TAG_OBJECT_MOVED = "Mouvement";
     public static final String TAG_FAIL = "Son_Echec";
-    public static AudioManager instance = new AudioManager();
 
-    private AudioManager()
-    {
-
-    }
+    private AudioManager() {}
 
     public void addAudio(Context context, int idAudio, String name)
     {
@@ -49,5 +46,8 @@ public class AudioManager {
         audio.release();
     }
 
+    public static AudioManager getInstance() {
+        return instance;
+    }
 
 }

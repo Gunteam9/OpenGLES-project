@@ -41,7 +41,7 @@ public class OpenGLES20Activity extends FragmentActivity {
         // le conteneur View pour faire du rendu OpenGL
         glSurfaceView = findViewById(R.id.glSurfaceView);
         glSurfaceView.init(this, this.score);
-        audioManager = AudioManager.instance;
+        audioManager = AudioManager.getInstance();
 
         String string = "Score : " +
                 Game.getInstance().getScore();
