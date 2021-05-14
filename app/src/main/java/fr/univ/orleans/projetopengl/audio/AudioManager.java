@@ -26,11 +26,6 @@ public class AudioManager {
         audios.put(name, audio);
     }
 
-    public boolean Exist(String name)
-    {
-        return audios.get(name) != null;
-    }
-
     public void deleteAudio(String name)
     {
         this.audios.remove(name);
