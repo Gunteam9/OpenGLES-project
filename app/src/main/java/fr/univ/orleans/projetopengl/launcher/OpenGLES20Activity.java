@@ -28,7 +28,6 @@ public class OpenGLES20Activity extends FragmentActivity implements CallBack {
     private static MyGLSurfaceView glSurfaceView;
     private TextView timerText;
     private TextView score;
-    public static final Game game = new Game();
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override

@@ -33,8 +33,6 @@ import fr.univ.orleans.projetopengl.utils.Colors;
 import fr.univ.orleans.projetopengl.utils.Vector2;
 import fr.univ.orleans.projetopengl.utils.Vector3;
 
-import static fr.univ.orleans.projetopengl.launcher.OpenGLES20Activity.game;
-
 /* La classe MyGLSurfaceView avec en particulier la gestion des événements
   et la création de l'objet renderer
 
@@ -48,8 +46,9 @@ public class MyGLSurfaceView extends GLSurfaceView {
     /* Un attribut : le renderer (GLSurfaceView.Renderer est une interface générique disponible) */
     /* MyGLRenderer va implémenter les méthodes de cette interface */
 
-    private MyGLRenderer mRenderer;
-    private List<IObject> objToDraw = new ArrayList<IObject>();
+    private final Game game = Game.getInstance();
+    private MyGLRenderer renderer;
+    private final List<IObject> objToDraw = new ArrayList<IObject>();
     TextView score;
 
     public MyGLSurfaceView(Context context) {
@@ -67,8 +66,8 @@ public class MyGLSurfaceView extends GLSurfaceView {
         this.score = score;
 
         // Création du renderer qui va être lié au conteneur View créé
-        mRenderer = new MyGLRenderer(objToDraw);
-        setRenderer(mRenderer);
+        renderer = new MyGLRenderer(objToDraw, this);
+        setRenderer(renderer);
 
         // Option pour indiquer qu'on redessine uniquement si les données changent
         setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
@@ -81,34 +80,8 @@ public class MyGLSurfaceView extends GLSurfaceView {
         float x = e.getX();
         float y = e.getY();
 
-        // la taille de l'écran en pixels
-//        float screen_x = getWidth();
-//        float screen_y = getHeight();
-
-
-
-
-        // Des messages si nécessaires */
-//        Log.d("message", "x"+Float.toString(x));
-//        Log.d("message", "y"+Float.toString(y));
-//        Log.d("message", "screen_x="+Float.toString(screen_x));
-//        Log.d("message", "screen_y="+Float.toString(screen_y));
-
-        /* Conversion des coordonnées pixel en coordonnées OpenGL
-        Attention l'axe x est inversé par rapport à OpenGLSL
-        On suppose que l'écran correspond à un carré d'arête 2 centré en 0
-         */
-
-        //Permet d'adapter à la taille de création
-//        float xOpengl = 20.0f*x/getWidth() - 10.0f;
-//        float yOpengl = -20.0f*y/getHeight() + 10.0f;
-        System.out.println("width: " + getWidth() + " height " + getHeight());
         float xOpengl = getWidth() / 50f * x / getWidth() - getWidth() / 100f;
         float yOpengl = -getHeight() / 50f * y / getHeight() + getHeight() / 100f;
-
-//        Log.d("message","x_opengl="+Float.toString(xOpengl));
-//        Log.d("message","y_opengl="+Float.toString(yOpengl));
-
 
         if (e.getAction() == MotionEvent.ACTION_DOWN) {
             clearObjets();
@@ -168,8 +141,12 @@ public class MyGLSurfaceView extends GLSurfaceView {
         objToDraw.add(obj);
     }
 
-    private void clearObjets() {
+    public void clearObjets() {
         objToDraw.clear();
+    }
+
+    public MyGLRenderer getRenderer() {
+        return renderer;
     }
 
 }
