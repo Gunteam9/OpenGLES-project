@@ -123,8 +123,9 @@ public class MyGLSurfaceView extends GLSurfaceView {
                 if (game.getNeighbours(emptyCase).contains(caseTouch))
                 {
                     game.moveObject(caseTouch);
-                    System.out.println(game.getScore());
-                    this.score.setText(String.valueOf(game.getScore()));
+                    String string = "Score : " +
+                            game.getScore();
+                    this.score.setText(string);
                 }
                 else
                 {

@@ -10,6 +10,8 @@ import android.widget.TextView;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentActivity;
 
+import java.text.DecimalFormat;
+
 import fr.univ.orleans.projetopengl.audio.AudioManager;
 import fr.univ.orleans.projetopengl.R;
 import fr.univ.orleans.projetopengl.alerts.GameOverFragment;
@@ -22,8 +24,8 @@ openGLES.zip HelloOpenGLES20
 
 public class OpenGLES20Activity extends FragmentActivity {
 
-    private final long totalTime = 9000; // nombre de millisecondes
-    private long countDownInterval = 1000; // combien de millisecondes sont enlevés à chaque appel
+    private final long totalTime = 10000; // nombre de millisecondes
+    private final long countDownInterval = 100; // combien de millisecondes sont enlevés à chaque appel
     private static MyGLSurfaceView glSurfaceView;
     private TextView timerText;
     private TextView score;
@@ -41,6 +43,10 @@ public class OpenGLES20Activity extends FragmentActivity {
         glSurfaceView = findViewById(R.id.glSurfaceView);
         glSurfaceView.init(this, this.score);
         audioManager = AudioManager.instance;
+
+        String string = "Score : " +
+                game.getScore();
+        this.score.setText(string);
 
         audioManager.addAudio(this, R.raw.music, AudioManager.TAG_MUSIC);
         audioManager.addAudio(this, R.raw.error, AudioManager.TAG_FAIL);
@@ -68,30 +74,25 @@ public class OpenGLES20Activity extends FragmentActivity {
         CountDownTimer timer = new CountDownTimer(totalTime, countDownInterval) {
             @Override
             public void onTick(long millisUntilFinished) {
-                timerText.setText(String.valueOf((millisUntilFinished + 1000) / 1000));
-                if(game.isHasWon())
-                {
-                    onFinish();
-                }
+                DecimalFormat decimalFormat = new DecimalFormat("#.#");
+                StringBuilder s = new StringBuilder()
+                        .append("Time : ")
+                        .append(decimalFormat.format(millisUntilFinished / 1000.0));
 
+                timerText.setText(s);
+                if(game.isHasWon())
+                    onFinish();
             }
 
             @Override
             public void onFinish()
             {
-                finishGame();
+                showDialog();
+                audioManager.stopAudio(AudioManager.TAG_MUSIC);
                 cancel();
             }
         };
         timer.start();
-
-    }
-
-    private void finishGame()
-    {
-        showDialog();
-        audioManager.stopAudio(AudioManager.TAG_MUSIC);
-
     }
 
     private void showDialog()
