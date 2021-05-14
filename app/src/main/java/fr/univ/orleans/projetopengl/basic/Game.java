@@ -30,6 +30,7 @@ public class Game {
     private boolean isInitializationFinished = false;
     private CallBack callBack = null;
     private int score;
+    private boolean hasWon = false;
     //Positions of objects on the screen
     public final Map<Integer, Vector2> positions = Stream.of(new Object[][] {
             {0, new Vector2(-5f, -5f)},
@@ -100,6 +101,10 @@ public class Game {
 
     public int getScore() { return score; }
 
+    public boolean isHasWon() {
+        return hasWon;
+    }
+
     public int getEmptyPosition() {
         List<Integer> res = new ArrayList<>(elementsIndex);
         res.removeAll(currentGrid.keySet());
@@ -158,7 +163,7 @@ public class Game {
             ending++;
         }
 
-
+        hasWon = true;
         //End
         OpenGLES20Activity.getmGLView().drawObject(new CheckMark(Colors.GREEN, 0.6f, new Vector2(0, -15)), true);
 

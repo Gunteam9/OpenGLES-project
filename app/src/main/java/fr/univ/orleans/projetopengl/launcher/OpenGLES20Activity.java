@@ -1,7 +1,8 @@
 package fr.univ.orleans.projetopengl.launcher;
 
 
-
+import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -11,6 +12,10 @@ import android.widget.TextView;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentActivity;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import fr.univ.orleans.projetopengl.audio.AudioManager;
 import fr.univ.orleans.projetopengl.R;
 import fr.univ.orleans.projetopengl.alerts.GameOverFragment;
 import fr.univ.orleans.projetopengl.basic.CallBack;
@@ -29,6 +34,7 @@ public class OpenGLES20Activity extends FragmentActivity implements CallBack {
     private TextView timerText;
     private TextView score;
     public static final Game game = new Game();
+    public static AudioManager audioManager = new AudioManager();
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -40,6 +46,8 @@ public class OpenGLES20Activity extends FragmentActivity implements CallBack {
         // le conteneur View pour faire du rendu OpenGL
         glSurfaceView = findViewById(R.id.glSurfaceView);
         glSurfaceView.init(this, this.score);
+        audioManager.addAudio(this, R.raw.music, AudioManager.TAG_MUSIC);
+        audioManager.startAudio(AudioManager.TAG_MUSIC);
         this.startCounter();
 
 
@@ -61,19 +69,34 @@ public class OpenGLES20Activity extends FragmentActivity implements CallBack {
             @Override
             public void onTick(long millisUntilFinished) {
                 timerText.setText(String.valueOf((millisUntilFinished + 1000) / 1000));
+                if(game.isHasWon())
+                {
+                    onFinish();
+                }
+
             }
 
             @Override
-            public void onFinish() {
-                showDialog();
+            public void onFinish()
+            {
+                finishGame();
+                cancel();
             }
         };
         timer.start();
+
+    }
+
+    private void finishGame()
+    {
+        showDialog();
+        audioManager.stopAudio(AudioManager.TAG_MUSIC);
+
     }
 
     private void showDialog()
     {
-        GameOverFragment fragment = new GameOverFragment();
+        GameOverFragment fragment = new GameOverFragment(game.getScore());
         fragment.show(this.getSupportFragmentManager(), "dialog");
     }
 

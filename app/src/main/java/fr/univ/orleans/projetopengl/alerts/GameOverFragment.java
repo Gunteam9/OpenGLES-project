@@ -16,12 +16,14 @@ import fr.univ.orleans.projetopengl.launcher.OpenGLES20Activity;
 
 public class GameOverFragment extends DialogFragment {
 
-    public static String TAG = "Game Over";
+    public static final String TAG = "Game Over";
+    private final int scoreGameOver;
 
-    public GameOverFragment() {
+    public GameOverFragment(int score) {
         Bundle args = new Bundle();
         args.putString(TAG, "title");
         this.setArguments(args);
+        this.scoreGameOver = score;
     }
 
     @NonNull
@@ -29,7 +31,10 @@ public class GameOverFragment extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage(R.string.game_over)
+        StringBuilder stringBuilder = new StringBuilder();
+        System.out.println(this.scoreGameOver);
+        stringBuilder.append(R.string.game_over).append(this.scoreGameOver);
+        builder.setMessage(stringBuilder.toString())
                 .setPositiveButton(R.string.reset, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
