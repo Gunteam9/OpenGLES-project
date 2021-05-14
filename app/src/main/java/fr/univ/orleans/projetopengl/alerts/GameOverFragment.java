@@ -2,16 +2,18 @@ package fr.univ.orleans.projetopengl.alerts;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.DialogFragment;
 
 import java.util.Objects;
 
 import fr.univ.orleans.projetopengl.R;
+import fr.univ.orleans.projetopengl.basic.Game;
 import fr.univ.orleans.projetopengl.launcher.OpenGLES20Activity;
 
 public class GameOverFragment extends DialogFragment {
@@ -38,17 +40,12 @@ public class GameOverFragment extends DialogFragment {
                 .setPositiveButton(R.string.reset, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        startActivity(Objects.requireNonNull(getActivity()).getIntent());
-                        getActivity().finish();
-                        getActivity().overridePendingTransition(0,0);
+                        Game.getInstance().initializeGrid(OpenGLES20Activity.getmGLView());
                     }
                 })
-                .setNegativeButton(R.string.quit, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Objects.requireNonNull(getActivity()).finish();
-                        System.exit(0);
-                    }
+                .setNegativeButton(R.string.quit, (dialog, which) -> {
+                    Objects.requireNonNull(getActivity()).finish();
+                    System.exit(0);
                 });
         return builder.create();
     }

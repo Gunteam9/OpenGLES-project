@@ -29,7 +29,6 @@ public class OpenGLES20Activity extends FragmentActivity {
     private static MyGLSurfaceView glSurfaceView;
     private TextView timerText;
     private TextView score;
-    public static final Game game = new Game();
     public static AudioManager audioManager;
 
     @RequiresApi(api = Build.VERSION_CODES.O)

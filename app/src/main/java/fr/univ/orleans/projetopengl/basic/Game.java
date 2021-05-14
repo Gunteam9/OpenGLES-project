@@ -1,5 +1,6 @@
 package fr.univ.orleans.projetopengl.basic;
 
+import android.opengl.GLES30;
 import android.os.Build;
 import android.util.Log;
 
@@ -7,6 +8,7 @@ import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +27,8 @@ import fr.univ.orleans.projetopengl.objects.Triangle;
 import fr.univ.orleans.projetopengl.utils.Vector2;
 
 public class Game {
+
+    private static final Game instance = new Game();
 
     private final List<Integer> elementsIndex = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8));
     private final Random random = new Random();
@@ -50,14 +54,26 @@ public class Game {
     private final Map<Integer, IObject> currentGrid = new HashMap<Integer, IObject>();
     private final Map<Integer, IObject> endingGrid = new HashMap<Integer, IObject>();
 
-    //Don't create IObject here
-    public Game() {
-        audioManager = AudioManager.instance;
+    private MyGLSurfaceView surfaceView;
+    private MyGLRenderer renderer;
 
+    private Game() {
+        audioManager = AudioManager.instance;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public void initializeGrid() {
+    public static Game getInstance() {
+        return instance;
+    }
+
+    public void initializeGrid(MyGLSurfaceView surfaceView) {
+        this.surfaceView = surfaceView;
+
+        isInitializationFinished = false;
+
+        currentGrid.clear();
+        endingGrid.clear();
+        surfaceView.clearObjets();
+
         List<IObject> objects = new ArrayList<IObject>(Arrays.asList(
                 new Star(Colors.RED, positions.get(0)),
                 new Star(Colors.GREEN, positions.get(1)),
@@ -94,8 +110,12 @@ public class Game {
             moveObject(randomElementInMap);
         }
 
+        surfaceView.requestRender();
+
         isInitializationFinished = true;
     }
+
+
 
     public Map<Integer, IObject> getCurrentGrid() {
         return currentGrid;
@@ -173,7 +193,8 @@ public class Game {
 
     }
 
-    public boolean isInitializationFinished() {
-        return isInitializationFinished;
+    public Collection<IObject> getObjToDraw() {
+        return currentGrid.values();
     }
+
 }
