@@ -44,7 +44,7 @@ public class OpenGLES20Activity extends FragmentActivity {
         audioManager = AudioManager.instance;
 
         String string = "Score : " +
-                game.getScore();
+                Game.getInstance().getScore();
         this.score.setText(string);
 
         audioManager.addAudio(this, R.raw.music, AudioManager.TAG_MUSIC);
@@ -79,7 +79,7 @@ public class OpenGLES20Activity extends FragmentActivity {
                         .append(decimalFormat.format(millisUntilFinished / 1000.0));
 
                 timerText.setText(s);
-                if(game.isHasWon())
+                if(Game.getInstance().isHasWon())
                     onFinish();
             }
 
@@ -96,7 +96,7 @@ public class OpenGLES20Activity extends FragmentActivity {
 
     private void showDialog()
     {
-        GameOverFragment fragment = new GameOverFragment(game.getScore());
+        GameOverFragment fragment = new GameOverFragment(Game.getInstance().getScore());
         fragment.show(this.getSupportFragmentManager(), "dialog");
     }
 

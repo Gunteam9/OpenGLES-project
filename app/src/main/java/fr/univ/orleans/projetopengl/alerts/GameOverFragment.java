@@ -2,6 +2,7 @@ package fr.univ.orleans.projetopengl.alerts;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -37,12 +38,7 @@ public class GameOverFragment extends DialogFragment {
         System.out.println(this.scoreGameOver);
         stringBuilder.append(R.string.game_over).append(this.scoreGameOver);
         builder.setMessage(stringBuilder.toString())
-                .setPositiveButton(R.string.reset, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Game.getInstance().initializeGrid(OpenGLES20Activity.getmGLView());
-                    }
-                })
+                .setPositiveButton(R.string.reset, (dialog, which) -> Game.getInstance().initializeGrid(OpenGLES20Activity.getmGLView()))
                 .setNegativeButton(R.string.quit, (dialog, which) -> {
                     Objects.requireNonNull(getActivity()).finish();
                     System.exit(0);
