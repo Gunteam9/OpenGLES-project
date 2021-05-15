@@ -1,6 +1,7 @@
 package fr.univ.orleans.projetopengl.launcher;
 
 
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -38,9 +39,10 @@ public class OpenGLES20Activity extends FragmentActivity {
         setContentView(R.layout.activity_main);
         this.timerText = findViewById(R.id.timer);
         this.score = findViewById(R.id.score);
+        Game.getInstance().setScoreText(this.score);
         // le conteneur View pour faire du rendu OpenGL
         glSurfaceView = findViewById(R.id.glSurfaceView);
-        glSurfaceView.init(this, this.score);
+        glSurfaceView.init(this);
         audioManager = AudioManager.getInstance();
 
         String string = "Score : " +
@@ -77,6 +79,8 @@ public class OpenGLES20Activity extends FragmentActivity {
                 StringBuilder s = new StringBuilder()
                         .append("Time : ")
                         .append(decimalFormat.format(millisUntilFinished / 1000.0));
+                if(millisUntilFinished <= 5000)
+                    timerText.setTextColor(Color.RED);
 
                 timerText.setText(s);
                 if(Game.getInstance().isHasWon())
@@ -96,7 +100,7 @@ public class OpenGLES20Activity extends FragmentActivity {
 
     private void showDialog()
     {
-        GameOverFragment fragment = new GameOverFragment(Game.getInstance().getScore());
+        GameOverFragment fragment = new GameOverFragment();
         fragment.show(this.getSupportFragmentManager(), "dialog");
     }
 

@@ -3,6 +3,7 @@ package fr.univ.orleans.projetopengl.basic;
 import android.opengl.GLES30;
 import android.os.Build;
 import android.util.Log;
+import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 
@@ -34,7 +35,8 @@ public class Game {
     private final Random random = new Random();
     private boolean isInitializationFinished = false;
     private int score = 0;
-    private boolean hasWon = false;
+    private TextView scoreText;
+    private boolean hasWon;
     //Positions of objects on the screen
     public final Map<Integer, Vector2> positions = Stream.of(new Object[][] {
             {0, new Vector2(-5f, -5f)},
@@ -65,10 +67,12 @@ public class Game {
         return instance;
     }
 
+
     public void initializeGrid(MyGLSurfaceView surfaceView) {
         this.surfaceView = surfaceView;
 
         isInitializationFinished = false;
+        hasWon = false;
 
         currentGrid.clear();
         endingGrid.clear();
@@ -127,6 +131,19 @@ public class Game {
         return hasWon;
     }
 
+    public void setScoreText(TextView scoreText) {
+
+        this.scoreText = scoreText;
+        this.updateScore(0);
+    }
+
+    private void updateScore(int score)
+    {
+        this.score = score;
+        String string = "Score : " + this.score;
+        this.scoreText.setText(string);
+    }
+
     public int getEmptyPosition() {
         List<Integer> res = new ArrayList<>(elementsIndex);
         res.removeAll(currentGrid.keySet());
@@ -170,7 +187,7 @@ public class Game {
         if (!isInitializationFinished)
             return;
 
-        this.score++;
+        updateScore(++this.score);
         audioManager.startAudio(AudioManager.TAG_OBJECT_MOVED);
         int current = 0;
         int ending = 0;

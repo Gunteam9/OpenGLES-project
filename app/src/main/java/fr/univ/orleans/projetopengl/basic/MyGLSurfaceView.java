@@ -50,7 +50,6 @@ public class MyGLSurfaceView extends GLSurfaceView {
     private final Game game = Game.getInstance();
     private MyGLRenderer renderer;
     private final List<IObject> objToDraw = new ArrayList<IObject>();
-    TextView score;
     private AudioManager audioManager;
 
     public MyGLSurfaceView(Context context) {
@@ -61,13 +60,12 @@ public class MyGLSurfaceView extends GLSurfaceView {
         super(context, attributes);
     }
 
-    public void init(Context context, TextView score) {
+    public void init(Context context) {
         audioManager = AudioManager.getInstance();
 
         setEGLConfigChooser(8, 8, 8, 8, 16, 0);
         // Création d'un context OpenGLES 2.0
         setEGLContextClientVersion(3);
-        this.score = score;
 
         // Création du renderer qui va être lié au conteneur View créé
         renderer = new MyGLRenderer(objToDraw, this);
@@ -97,8 +95,6 @@ public class MyGLSurfaceView extends GLSurfaceView {
                 if (game.getNeighbours(emptyCase).contains(caseTouch))
                 {
                     game.moveObject(caseTouch);
-                    String string = "Score : " + game.getScore();
-                    this.score.setText(string);
                 }
                 else
                 {
