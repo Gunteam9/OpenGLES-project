@@ -2,6 +2,7 @@ package fr.univ.orleans.projetopengl.basic;
 
 import android.opengl.GLES30;
 import android.os.Build;
+import android.os.Handler;
 import android.util.Log;
 
 import androidx.annotation.RequiresApi;
@@ -35,7 +36,6 @@ public class Game {
     private boolean isInitializationFinished = false;
     private int score = 0;
     private boolean hasWon = false;
-    private boolean firstInitialization = true;
     //Positions of objects on the screen
     public final Map<Integer, Vector2> positions = Stream.of(new Object[][] {
             {0, new Vector2(-5f, -5f)},
@@ -68,8 +68,7 @@ public class Game {
     public void initializeGrid(MyGLSurfaceView surfaceView) {
         this.surfaceView = surfaceView;
 
-        isInitializationFinished = false;
-
+        hasWon = false;
         currentGrid.clear();
         endingGrid.clear();
         surfaceView.clearObjets();
@@ -94,37 +93,36 @@ public class Game {
             Log.d("COORDS", objects.get(i).getColor() + " " + objects.get(i).getClass().getSimpleName() + " is at " + i + " " + objects.get(i).getCoords());
         }
 
-        int numberOfModifications = 5;
-//        int numberOfModifications = random.nextInt(100);
-
         //Copy the ending grid to the current
         currentGrid.putAll(endingGrid);
 
-        //Execute random possible moves
-        for (int i = 0; i < numberOfModifications; i++) {
-            //Get neighbours of the the empty position
-            ArrayList<Integer> keys = new ArrayList<>(getNeighbours(getEmptyPosition()));
-            //Select one of them
-            int randomElementInMap = keys.get(random.nextInt(keys.size()));
-            //Move the selected element into the empty position
-            moveObject(randomElementInMap);
-        }
-
         surfaceView.requestRender();
-
-        isInitializationFinished = true;
     }
 
+    public void randomizeGrid() {
+        isInitializationFinished = false;
+
+        //Wait before randomize
+        new Handler().postDelayed(() -> {
+            int numberOfModifications = 5;
+//        int numberOfModifications = random.nextInt(100);
+
+            //Execute random possible moves
+            for (int i = 0; i < numberOfModifications; i++) {
+                //Get neighbours of the the empty position
+                ArrayList<Integer> keys = new ArrayList<>(getNeighbours(getEmptyPosition()));
+                //Select one of them
+                int randomElementInMap = keys.get(random.nextInt(keys.size()));
+                //Move the selected element into the empty position
+                moveObject(randomElementInMap);
+            }
+
+            surfaceView.requestRender();
+
+            isInitializationFinished = true;
+        }, 3000);
 
 
-    public Map<Integer, IObject> getCurrentGrid() {
-        return currentGrid;
-    }
-
-    public int getScore() { return score; }
-
-    public boolean isHasWon() {
-        return hasWon;
     }
 
     public int getEmptyPosition() {
@@ -172,6 +170,25 @@ public class Game {
 
         this.score++;
         audioManager.startAudio(AudioManager.TAG_OBJECT_MOVED);
+
+        if (isGridFinish()) {
+            hasWon = true;
+            audioManager.startAudio(AudioManager.TAG_SUCCES);
+            OpenGLES20Activity.getmGLView().drawObject(new CheckMark(Colors.GREEN, 0.6f, new Vector2(0, -15)), true);
+        }
+    }
+
+    public Collection<IObject> getObjToDraw() {
+        return currentGrid.values();
+    }
+
+    public Map<Integer, IObject> getCurrentGrid() {
+        return currentGrid;
+    }
+
+    public int getScore() { return score; }
+
+    public boolean isGridFinish() {
         int current = 0;
         int ending = 0;
 
@@ -179,21 +196,17 @@ public class Game {
             if (currentGrid.get(current) != null) {
                 //If there is a difference
                 if (currentGrid.get(current) != endingGrid.get(ending))
-                    return;
+                    return false;
             }
 
             current++;
             ending++;
         }
 
-        hasWon = true;
-        //End
-        audioManager.startAudio(AudioManager.TAG_SUCCES);
-        OpenGLES20Activity.getmGLView().drawObject(new CheckMark(Colors.GREEN, 0.6f, new Vector2(0, -15)), true);
-
+        return true;
     }
 
-    public Collection<IObject> getObjToDraw() {
-        return currentGrid.values();
+    public boolean isHasWon() {
+        return hasWon;
     }
 }

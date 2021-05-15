@@ -88,6 +88,11 @@ public class MyGLSurfaceView extends GLSurfaceView {
         float yOpengl = -getHeight() / 50f * y / getHeight() + getHeight() / 100f;
 
         if (e.getAction() == MotionEvent.ACTION_DOWN) {
+            if (game.isGridFinish()) {
+                game.randomizeGrid();
+                return true;
+            }
+
             clearObjets();
             
             try {
