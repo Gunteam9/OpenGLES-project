@@ -35,6 +35,7 @@ public class Game {
     private boolean isInitializationFinished = false;
     private int score = 0;
     private boolean hasWon = false;
+    private boolean firstInitialization = true;
     //Positions of objects on the screen
     public final Map<Integer, Vector2> positions = Stream.of(new Object[][] {
             {0, new Vector2(-5f, -5f)},
@@ -54,7 +55,6 @@ public class Game {
     private final Map<Integer, IObject> endingGrid = new HashMap<Integer, IObject>();
 
     private MyGLSurfaceView surfaceView;
-    private MyGLRenderer renderer;
     private final AudioManager audioManager;
 
     private Game() {
@@ -196,5 +196,4 @@ public class Game {
     public Collection<IObject> getObjToDraw() {
         return currentGrid.values();
     }
-
 }

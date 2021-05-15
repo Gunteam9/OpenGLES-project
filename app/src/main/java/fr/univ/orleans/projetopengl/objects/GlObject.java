@@ -10,48 +10,17 @@ import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.univ.orleans.projetopengl.basic.MyGLRenderer;
+import fr.univ.orleans.projetopengl.basic.GLManager;
 import fr.univ.orleans.projetopengl.utils.Colors;
 import fr.univ.orleans.projetopengl.utils.Vector2;
 import fr.univ.orleans.projetopengl.utils.Vector3;
 
 public abstract class GlObject implements IObject {
-
-    /* Le vertex shader avec la définition de gl_Position et les variables utiles au fragment shader
-     */
-    //Basic
-    private String vertexShaderCode =
-            "#version 300 es\n"+
-                    "uniform mat4 uMVPMatrix;\n"+
-                    "in vec3 vPosition;\n" +
-                    "in vec4 vCouleur;\n"+
-                    "out vec4 Couleur;\n"+
-                    "out vec3 Position;\n"+
-                    "void main() {\n" +
-                    "Position = vPosition;\n"+
-                    "gl_Position = uMVPMatrix * vec4(vPosition,1.0);\n" +
-                    "Couleur = vCouleur;\n"+
-                    "}\n";
-
-
-    //Basic
-    protected String fragmentShaderCode =
-            "#version 300 es\n"+
-                    "precision mediump float;\n" + // pour définir la taille d'un float
-                    "in vec4 Couleur;\n"+
-                    "in vec3 Position;\n"+
-                    "out vec4 fragColor;\n"+
-                    "void main() {\n" +
-                    "fragColor = Couleur;\n" +
-                    "}\n";
-
     private final int coordsPerVertex = 3; // nombre de coordonnées par vertex
     private final int colorsPerVertex = 4; // nombre de composantes couleur par vertex
 
     private final int vertexStride = coordsPerVertex * 4; // le pas entre 2 sommets : 4 bytes per vertex
-    private final int couleurStride = colorsPerVertex * 4; // le pas entre 2 couleurs
-
-    final int[] linkStatus = {0};
+    private final int colorStride = colorsPerVertex * 4; // le pas entre 2 couleurs
 
     /* les déclarations pour l'équivalent des VBO */
 
@@ -62,9 +31,9 @@ public abstract class GlObject implements IObject {
     /* les déclarations pour les shaders
     Identifiant du programme et pour les variables attribute ou uniform
      */
-    private int IdProgram; // identifiant du programme pour lier les shaders
-    private int IdPosition; // idendifiant (location) pour transmettre les coordonnées au vertex shader
-    private int IdCouleur; // identifiant (location) pour transmettre les couleurs
+    private int idProgram; // identifiant du programme pour lier les shaders
+    private int idPosition; // idendifiant (location) pour transmettre les coordonnées au vertex shader
+    private int idColor; // identifiant (location) pour transmettre les couleurs
     private int IdMVPMatrix; // identifiant (location) pour transmettre la matrice PxVxM
 
     protected float[] initialCoords;
@@ -88,15 +57,14 @@ public abstract class GlObject implements IObject {
         move(center);
     }
 
-
     //La fonction display
     @Override
     public void draw(float[] mvpMatrix) {
         // initialisation du buffer pour les vertex (4 bytes par float)
-        ByteBuffer bb = ByteBuffer.allocateDirect(coords.length * 4);
+        ByteBuffer bb = ByteBuffer.allocateDirect(this.coords.length * 4);
         bb.order(ByteOrder.nativeOrder());
         vertexBuffer = bb.asFloatBuffer();
-        vertexBuffer.put(coords);
+        vertexBuffer.put(this.coords);
         vertexBuffer.position(0);
 
 
@@ -108,61 +76,44 @@ public abstract class GlObject implements IObject {
         colorBuffer.position(0);
 
         // initialisation du buffer des indices
-        ByteBuffer dlb = ByteBuffer.allocateDirect(indices.length * 2);
+        ByteBuffer dlb = ByteBuffer.allocateDirect(this.indices.length * 2);
         dlb.order(ByteOrder.nativeOrder());
         indiceBuffer = dlb.asShortBuffer();
-        indiceBuffer.put(indices);
+        indiceBuffer.put(this.indices);
         indiceBuffer.position(0);
 
         GLES10.glScalef(100, 100, 0);
 
-        /* Chargement des shaders */
-        int vertexShader = MyGLRenderer.loadShader(
-                GLES30.GL_VERTEX_SHADER,
-                vertexShaderCode);
-        int fragmentShader = MyGLRenderer.loadShader(
-                GLES30.GL_FRAGMENT_SHADER,
-                fragmentShaderCode);
-
-        IdProgram = GLES30.glCreateProgram();             // create empty OpenGL Program
-        GLES30.glAttachShader(IdProgram, vertexShader);   // add the vertex shader to program
-        GLES30.glAttachShader(IdProgram, fragmentShader); // add the fragment shader to program
-        GLES30.glLinkProgram(IdProgram);                  // create OpenGL program executables
-        GLES30.glGetProgramiv(IdProgram, GLES30.GL_LINK_STATUS,linkStatus,0);
-
-
+        idProgram = GLManager.getInstance().getIdProgram();
 
         // Add program to OpenGL environment
-        GLES30.glUseProgram(IdProgram);
+        GLES30.glUseProgram(idProgram);
 
         // get handle to shape's transformation matrix
-        IdMVPMatrix = GLES30.glGetUniformLocation(IdProgram, "uMVPMatrix");
+        IdMVPMatrix = GLES30.glGetUniformLocation(idProgram, "uMVPMatrix");
 
         // Apply the projection and view transformation
         GLES30.glUniformMatrix4fv(IdMVPMatrix, 1, false, mvpMatrix, 0);
 
 
         // get handle to vertex shader's vPosition member et vCouleur member
-        IdPosition = GLES30.glGetAttribLocation(IdProgram, "vPosition");
-        IdCouleur = GLES30.glGetAttribLocation(IdProgram, "vCouleur");
+        idPosition = GLES30.glGetAttribLocation(idProgram, "vPosition");
+        idColor = GLES30.glGetAttribLocation(idProgram, "vCouleur");
 
         /* Activation des Buffers */
-        GLES30.glEnableVertexAttribArray(IdPosition);
-        GLES30.glEnableVertexAttribArray(IdCouleur);
+        GLES30.glEnableVertexAttribArray(idPosition);
+        GLES30.glEnableVertexAttribArray(idColor);
 
         /* Lecture des Buffers */
         GLES30.glVertexAttribPointer(
-                IdPosition, coordsPerVertex,
+                idPosition, coordsPerVertex,
                 GLES30.GL_FLOAT, false,
                 vertexStride, vertexBuffer);
 
         GLES30.glVertexAttribPointer(
-                IdCouleur, colorsPerVertex,
+                idColor, colorsPerVertex,
                 GLES30.GL_FLOAT, false,
-                couleurStride, colorBuffer);
-
-
-
+                colorStride, colorBuffer);
 
         // Draw the square
         GLES30.glDrawElements(
@@ -171,8 +122,8 @@ public abstract class GlObject implements IObject {
 
 
         // Disable vertex array
-        GLES30.glDisableVertexAttribArray(IdPosition);
-        GLES30.glDisableVertexAttribArray(IdCouleur);
+        GLES30.glDisableVertexAttribArray(idPosition);
+        GLES30.glDisableVertexAttribArray(idColor);
     }
 
     @Override
