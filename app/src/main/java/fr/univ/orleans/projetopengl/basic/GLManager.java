@@ -2,6 +2,10 @@ package fr.univ.orleans.projetopengl.basic;
 
 import android.opengl.GLES30;
 
+/**
+ * Create an opengl program
+ * SINGLETON
+ */
 public class GLManager {
 
     private static final GLManager instance = new GLManager();

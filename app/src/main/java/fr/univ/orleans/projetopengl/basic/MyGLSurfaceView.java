@@ -40,7 +40,6 @@ import fr.univ.orleans.projetopengl.utils.Vector3;
 
 
 /* On va dessiner un carré qui peut se déplacer grace à une translation via l'écran tactile */
-
 public class MyGLSurfaceView extends GLSurfaceView {
 
     /* Un attribut : le renderer (GLSurfaceView.Renderer est une interface générique disponible) */

@@ -30,7 +30,6 @@ public class OpenGLES20Activity extends FragmentActivity {
     private final GameController gameController = GameController.getInstance();
     private static FragmentManager fragmentManager;
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

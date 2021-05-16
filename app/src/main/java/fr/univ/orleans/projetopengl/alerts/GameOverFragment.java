@@ -15,6 +15,9 @@ import fr.univ.orleans.projetopengl.audio.AudioManager;
 import fr.univ.orleans.projetopengl.basic.GameController;
 import fr.univ.orleans.projetopengl.launcher.OpenGLES20Activity;
 
+/**
+ * Alert dialog class when the game is finished
+ */
 public class GameOverFragment extends DialogFragment {
 
     public static final String TAG = "Game Over";

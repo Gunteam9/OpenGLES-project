@@ -30,13 +30,19 @@ import fr.univ.orleans.projetopengl.objects.Star;
 import fr.univ.orleans.projetopengl.objects.Triangle;
 import fr.univ.orleans.projetopengl.utils.Vector2;
 
+/**
+ * Game Controller
+ * Manage the game
+ * SINGLETON
+ */
 public class GameController {
 
     private static final GameController instance = new GameController();
     private final Random random = new Random();
+    // Elements index
     private final List<Integer> elementsIndex = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8));
 
-    public static final long COUNTDOWN_TOTAL_TIME = 10000; // nombre de millisecondes
+    public static final long COUNTDOWN_TOTAL_TIME = 90000; // nombre de millisecondes
     public static final long COUNTDOWN_INTERVAL = 100; // combien de millisecondes sont enlevés à chaque appel
     public static final long COUNTDOWN_RANDOMIZE_TIME = 3000;
 
@@ -99,10 +105,13 @@ public class GameController {
         this.clickToStartText = clickToStartText;
     }
 
+    /**
+     * Initialize the grid
+     * @param surfaceView
+     */
     public void initializeGrid(MyGLSurfaceView surfaceView) {
         this.surfaceView = surfaceView;
 
-        hasWon = false;
         isInitializationFinished = false;
         hasWon = false;
 
@@ -110,6 +119,7 @@ public class GameController {
         endingGrid.clear();
         surfaceView.clearObjets();
 
+        // Objects creation
         List<IObject> objects = new ArrayList<IObject>(Arrays.asList(
                 new Star(Colors.RED, positions.get(0)),
                 new Star(Colors.GREEN, positions.get(1)),
@@ -122,6 +132,7 @@ public class GameController {
                 new Square(Colors.BLUE, positions.get(8))
         ));
 
+        // Put objets in the map
         for (int i = 0; i < objects.size(); i++) {
             if (objects.get(i) == null)
                 continue;
@@ -133,9 +144,13 @@ public class GameController {
         //Copy the ending grid to the current
         currentGrid.putAll(endingGrid);
 
+        // Draw elements
         surfaceView.requestRender();
     }
 
+    /**
+     * Randomize elements position in the grid
+     */
     public void randomizeGrid() {
         isInitializationFinished = false;
         clickToStartText.setVisibility(View.VISIBLE);
@@ -143,8 +158,7 @@ public class GameController {
 
         //Wait before randomize
         new Handler().postDelayed(() -> {
-            int numberOfModifications = 5;
-//        int numberOfModifications = random.nextInt(100);
+            int numberOfModifications = random.nextInt(100) + 15;
 
             //Execute random possible moves
             for (int i = 0; i < numberOfModifications; i++) {
@@ -166,6 +180,9 @@ public class GameController {
         }, 3000);
     }
 
+    /**
+     * @return The empty position
+     */
     public int getEmptyPosition() {
         List<Integer> res = new ArrayList<>(elementsIndex);
         res.removeAll(currentGrid.keySet());
@@ -174,6 +191,10 @@ public class GameController {
         throw new RuntimeException("Error during the recovery of the empty position");
     }
 
+    /**
+     *
+     * @return Neighbours of the element
+     */
     public List<Integer> getNeighbours(int element) {
         List<Integer> res = new ArrayList<>();
 
@@ -196,6 +217,10 @@ public class GameController {
 
     }
 
+    /**
+     * Move the objects to the empty position if possible
+     * @param object
+     */
     public void moveObject(int object) {
         IObject obj = currentGrid.get(object);
         int emptyPosition = this.getEmptyPosition();
@@ -257,6 +282,9 @@ public class GameController {
         this.scoreText.setText(string);
     }
 
+    /**
+     * Create a countdown timer for the game
+     */
     public void startCounterGame()
     {
         CountDownTimer timer = new CountDownTimer(COUNTDOWN_TOTAL_TIME, COUNTDOWN_INTERVAL) {
@@ -288,6 +316,9 @@ public class GameController {
         timer.start();
     }
 
+    /**
+     * Create a countdown timer for the randomization
+     */
     public void startCounterRandomize()
     {
         CountDownTimer timer = new CountDownTimer(COUNTDOWN_RANDOMIZE_TIME, COUNTDOWN_INTERVAL) {
@@ -310,6 +341,9 @@ public class GameController {
         timer.start();
     }
 
+    /**
+     * Display a dialog
+     */
     private void showDialog()
     {
         GameOverFragment fragment = new GameOverFragment();

@@ -1,5 +1,8 @@
 package fr.univ.orleans.projetopengl.utils;
 
+/**
+ * Simple, Trivial, Obvious but never used :Kappa:
+ */
 public class Vector4 {
     public float x;
     public float y;

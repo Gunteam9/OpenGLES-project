@@ -2,8 +2,6 @@ package fr.univ.orleans.projetopengl.utils;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import java.util.Arrays;
-
 public enum Colors {
     RED(new float[] {1, 0, 0, 1}),
     GREEN(new float[] {0, 1, 0, 1}),
@@ -16,6 +14,10 @@ public enum Colors {
         this.val = val;
     }
 
+    /**
+     *
+     * @return An array of floats with repeated colors nb times
+     */
     public float[] multiplyBy(int nb) {
         if (nb == 0)
             return new float[] {0,0,0,0};

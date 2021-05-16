@@ -6,6 +6,11 @@ import android.media.MediaPlayer;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Audio Manager
+ * Manage audios in the game
+ * SINGLETON
+ */
 public class AudioManager {
     private static final AudioManager instance = new AudioManager();
 

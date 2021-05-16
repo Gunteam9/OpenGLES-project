@@ -1,5 +1,8 @@
 package fr.univ.orleans.projetopengl.utils;
 
+/**
+ * Simple, Trivial, Obvious
+ */
 public class Vector2 {
     public float x;
     public float y;

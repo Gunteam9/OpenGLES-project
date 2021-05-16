@@ -15,6 +15,9 @@ import fr.univ.orleans.projetopengl.utils.Colors;
 import fr.univ.orleans.projetopengl.utils.Vector2;
 import fr.univ.orleans.projetopengl.utils.Vector3;
 
+/**
+ * Abstract base class for each GlObject draw with triangles
+ */
 public abstract class GlObject implements IObject {
     private final int coordsPerVertex = 3; // nombre de coordonnées par vertex
     private final int colorsPerVertex = 4; // nombre de composantes couleur par vertex

@@ -29,6 +29,9 @@ import fr.univ.orleans.projetopengl.objects.IObject;
 
 /* MyGLRenderer implémente l'interface générique GLSurfaceView.Renderer */
 
+/**
+ * Renderer
+ */
 public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     private static final String TAG = "MyGLRenderer";
@@ -42,8 +45,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     private final float[] mViewMatrix = new float[16];
     private final float[] mModelMatrix = new float[16];
 
-    private List<IObject> objToDraw;
-    private Random random = new Random();
+    // Objets like cross and checkmark
+    private final List<IObject> objToDraw;
 
     public MyGLRenderer(List<IObject> objToDraw, MyGLSurfaceView surfaceView) {
         this.objToDraw = objToDraw;
@@ -76,8 +79,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
          */
 
         /*pour positionner la caméra mais ici on n'en a pas besoin*/
-
        // Matrix.setLookAtM(mViewMatrix, 0, 0, 0, -3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+
         Matrix.setIdentityM(mViewMatrix,0);
 
         // Calculate the projection and view transformation
@@ -88,11 +91,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         /* Pour définir une translation on donne les paramètres de la translation
         et la matrice (ici mModelMatrix) est multipliée par la translation correspondante
          */
-//        Matrix.translateM(mModelMatrix, 0, mSquarePosition[0], mSquarePosition[1], 0);
-//        Matrix.translateM(mModelMatrix, 0, mObject.get(4).getCenter().x, mObject.get(4).getCenter().y, 0);
         Matrix.translateM(mModelMatrix, 0, 0, 0, 0);
-//        for (int i = 0; i < mObject.size(); i++)
-//            Matrix.translateM(mModelMatrix, 0, mObject.get(i).getCenter().x, mObject.get(i).getCenter().y, 0);
 
         /* scratch est la matrice PxVxM finale */
         Matrix.multiplyMM(scratch, 0, mMVPMatrix, 0, mModelMatrix, 0);
@@ -114,7 +113,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         la projection qu'à la création de la surface !!
          */
         GLES30.glViewport(0, 0, width, height);
-        //Matrix.orthoM(mProjectionMatrix, 0, -10.0f, 10.0f, -10.0f, 10.0f, -1.0f, 1.0f);
         Matrix.orthoM(mProjectionMatrix, 0, (int) (-width / 100), (int) (width / 100), (int) (-height / 100), (int) (height / 100), -1.0f, 1.0f);
 
     }
