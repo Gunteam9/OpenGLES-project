@@ -43,7 +43,7 @@ public class GameOverFragment extends DialogFragment {
             else if(score < 5)
                 stringBuilder.append("Pas mal, mais vous pouvez faire mieux !");
             else
-                stringBuilder.append("Bof. Oops... Pardonnez-nous, c'est notre côté taquin :)");
+                stringBuilder.append("Bof. Oops... Pardonnez-nous, c'est notre côté taquin :-)");
         }
         else
         {
@@ -55,7 +55,6 @@ public class GameOverFragment extends DialogFragment {
                 .setPositiveButton(R.string.reset, (dialog, which) ->
                 {
                     GameController.getInstance().initializeGrid(OpenGLES20Activity.getmGLView());
-                    ((OpenGLES20Activity) Objects.requireNonNull(getActivity())).startCounter();
                 })
                 .setNegativeButton(R.string.quit, (dialog, which) -> {
                     Objects.requireNonNull(getActivity()).finish();

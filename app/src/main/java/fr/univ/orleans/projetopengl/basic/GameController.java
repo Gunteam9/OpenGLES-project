@@ -1,22 +1,27 @@
 package fr.univ.orleans.projetopengl.basic;
 
+import android.graphics.Color;
 import android.opengl.GLES30;
 import android.os.Build;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.content.Context;
 import android.util.Log;
 import android.widget.TextView;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import fr.univ.orleans.projetopengl.alerts.GameOverFragment;
 import fr.univ.orleans.projetopengl.audio.AudioManager;
 import fr.univ.orleans.projetopengl.launcher.OpenGLES20Activity;
 import fr.univ.orleans.projetopengl.objects.CheckMark;
@@ -30,12 +35,16 @@ import fr.univ.orleans.projetopengl.utils.Vector2;
 public class GameController {
 
     private static final GameController instance = new GameController();
+    public static final long COUNTDOWN_TOTAL_TIME = 10000; // nombre de millisecondes
+    public static final long COUNTDOWN_INTERVAL = 100; // combien de millisecondes sont enlevés à chaque appel
+    public static final long COOLDOWN_RANDOMIZE_TIME = 3000;
 
     private final List<Integer> elementsIndex = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8));
     private final Random random = new Random();
     private boolean isInitializationFinished = false;
     private int score;
     private TextView scoreText;
+    private TextView timerText;
     private boolean hasWon;
     //Positions of objects on the screen
     public final Map<Integer, Vector2> positions = Stream.of(new Object[][] {
@@ -82,6 +91,9 @@ public class GameController {
         audioManager.stopAudio(name);
     }
 
+    public void setTimerText(TextView timerText) {
+        this.timerText = timerText;
+    }
 
     public void initializeGrid(MyGLSurfaceView surfaceView) {
         this.surfaceView = surfaceView;
@@ -122,6 +134,7 @@ public class GameController {
 
     public void randomizeGrid() {
         isInitializationFinished = false;
+        startCounterRandomize();
 
         //Wait before randomize
         new Handler().postDelayed(() -> {
@@ -139,16 +152,12 @@ public class GameController {
             }
 
             surfaceView.requestRender();
+            this.score = 0;
+            audioManager.startAudio(AudioManager.TAG_MUSIC);
 
-        isInitializationFinished = true;
-        this.score = 0;
-        audioManager.startAudio(AudioManager.TAG_MUSIC);
-    }
-
+            startCounterGame();
             isInitializationFinished = true;
         }, 3000);
-
-
     }
 
     public void setScoreText(TextView scoreText) {
@@ -212,7 +221,7 @@ public class GameController {
 
         if (isGridFinish()) {
             hasWon = true;
-            audioManager.startAudio(AudioManager.TAG_SUCCES);
+            audioManager.startAudio(AudioManager.TAG_WIN);
             OpenGLES20Activity.getmGLView().drawObject(new CheckMark(Colors.GREEN, 0.6f, new Vector2(0, -15)), true);
         }
     }
@@ -242,15 +251,68 @@ public class GameController {
             ending++;
         }
 
-        hasWon = true;
-        //End
-        audioManager.startAudio(AudioManager.TAG_WIN);
-        OpenGLES20Activity.getmGLView().drawObject(new CheckMark(Colors.GREEN, 0.6f, new Vector2(0, -15)), true);
-
         return true;
     }
 
     public boolean isHasWon() {
         return hasWon;
+    }
+
+    public void startCounterGame()
+    {
+        CountDownTimer timer = new CountDownTimer(COUNTDOWN_TOTAL_TIME, COUNTDOWN_INTERVAL) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                DecimalFormat decimalFormat = new DecimalFormat("#.#");
+                StringBuilder s = new StringBuilder()
+                        .append("Time : ")
+                        .append(decimalFormat.format(millisUntilFinished / 1000.0));
+                if(millisUntilFinished <= 5000)
+                    timerText.setTextColor(Color.RED);
+                else
+                    timerText.setTextColor(Color.WHITE);
+
+                timerText.setText(s);
+                if(hasWon)
+                    onFinish();
+            }
+
+            @Override
+            public void onFinish()
+            {
+                showDialog();
+                stopAudio(AudioManager.TAG_MUSIC);
+                cancel();
+            }
+        };
+        timer.start();
+    }
+
+    public void startCounterRandomize()
+    {
+        CountDownTimer timer = new CountDownTimer(COOLDOWN_RANDOMIZE_TIME, COUNTDOWN_INTERVAL) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                DecimalFormat decimalFormat = new DecimalFormat("#.#");
+                StringBuilder s = new StringBuilder()
+                        .append("Time : ")
+                        .append(decimalFormat.format(millisUntilFinished / 1000.0));
+
+                timerText.setText(s);
+            }
+
+            @Override
+            public void onFinish()
+            {
+                cancel();
+            }
+        };
+        timer.start();
+    }
+
+    private void showDialog()
+    {
+        GameOverFragment fragment = new GameOverFragment();
+        fragment.show(OpenGLES20Activity.getStaticFragmentManager(), "dialog");
     }
 }
