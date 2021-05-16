@@ -1,11 +1,8 @@
 package fr.univ.orleans.projetopengl.basic;
 
-import android.opengl.GLES30;
-import android.os.Build;
+import android.content.Context;
 import android.util.Log;
 import android.widget.TextView;
-
-import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,14 +24,14 @@ import fr.univ.orleans.projetopengl.objects.Star;
 import fr.univ.orleans.projetopengl.objects.Triangle;
 import fr.univ.orleans.projetopengl.utils.Vector2;
 
-public class Game {
+public class GameController {
 
-    private static final Game instance = new Game();
+    private static final GameController instance = new GameController();
 
     private final List<Integer> elementsIndex = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8));
     private final Random random = new Random();
     private boolean isInitializationFinished = false;
-    private int score = 0;
+    private int score;
     private TextView scoreText;
     private boolean hasWon;
     //Positions of objects on the screen
@@ -59,12 +56,27 @@ public class Game {
     private MyGLRenderer renderer;
     private final AudioManager audioManager;
 
-    private Game() {
+    private GameController() {
         audioManager = AudioManager.getInstance();
     }
 
-    public static Game getInstance() {
+    public static GameController getInstance() {
         return instance;
+    }
+
+    public void addAudio(Context context, int id, String name)
+    {
+        audioManager.addAudio(context, id, name);
+    }
+
+    public void playAudio(String name)
+    {
+        audioManager.startAudio(name);
+    }
+
+    public void stopAudio(String name)
+    {
+        audioManager.stopAudio(name);
     }
 
 
@@ -117,6 +129,8 @@ public class Game {
         surfaceView.requestRender();
 
         isInitializationFinished = true;
+        this.score = 0;
+        audioManager.startAudio(AudioManager.TAG_MUSIC);
     }
 
 
@@ -134,7 +148,7 @@ public class Game {
     public void setScoreText(TextView scoreText) {
 
         this.scoreText = scoreText;
-        this.updateScore(0);
+        updateScore(0);
     }
 
     private void updateScore(int score)
@@ -205,7 +219,7 @@ public class Game {
 
         hasWon = true;
         //End
-        audioManager.startAudio(AudioManager.TAG_SUCCES);
+        audioManager.startAudio(AudioManager.TAG_WIN);
         OpenGLES20Activity.getmGLView().drawObject(new CheckMark(Colors.GREEN, 0.6f, new Vector2(0, -15)), true);
 
     }

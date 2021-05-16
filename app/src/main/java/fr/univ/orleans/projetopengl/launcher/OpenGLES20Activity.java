@@ -16,7 +16,7 @@ import java.text.DecimalFormat;
 import fr.univ.orleans.projetopengl.audio.AudioManager;
 import fr.univ.orleans.projetopengl.R;
 import fr.univ.orleans.projetopengl.alerts.GameOverFragment;
-import fr.univ.orleans.projetopengl.basic.Game;
+import fr.univ.orleans.projetopengl.basic.GameController;
 import fr.univ.orleans.projetopengl.basic.MyGLSurfaceView;
 
 /* Ce tutorial est issu d'un tutorial http://developer.android.com/training/graphics/opengl/index.html :
@@ -25,12 +25,12 @@ openGLES.zip HelloOpenGLES20
 
 public class OpenGLES20Activity extends FragmentActivity {
 
-    private final long totalTime = 10000; // nombre de millisecondes
-    private final long countDownInterval = 100; // combien de millisecondes sont enlevés à chaque appel
+    private static final long COUNTDOWN_TOTAL_TIME = 10000; // nombre de millisecondes
+    private static final long COUNTDOWN_INTERVAL = 100; // combien de millisecondes sont enlevés à chaque appel
     private static MyGLSurfaceView glSurfaceView;
     private TextView timerText;
     private TextView score;
-    public static AudioManager audioManager;
+    private final GameController gameController = GameController.getInstance();
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -39,22 +39,18 @@ public class OpenGLES20Activity extends FragmentActivity {
         setContentView(R.layout.activity_main);
         this.timerText = findViewById(R.id.timer);
         this.score = findViewById(R.id.score);
-        Game.getInstance().setScoreText(this.score);
+        gameController.setScoreText(this.score);
         // le conteneur View pour faire du rendu OpenGL
         glSurfaceView = findViewById(R.id.glSurfaceView);
         glSurfaceView.init(this);
-        audioManager = AudioManager.getInstance();
 
-        String string = "Score : " +
-                Game.getInstance().getScore();
-        this.score.setText(string);
+        gameController.addAudio(this, R.raw.music, AudioManager.TAG_MUSIC);
+        gameController.addAudio(this, R.raw.error, AudioManager.TAG_FAIL);
+        gameController.addAudio(this, R.raw.move, AudioManager.TAG_OBJECT_MOVED);
+        gameController.addAudio(this, R.raw.success, AudioManager.TAG_WIN);
+        gameController.addAudio(this, R.raw.game_lose, AudioManager.TAG_LOSE);
 
-        audioManager.addAudio(this, R.raw.music, AudioManager.TAG_MUSIC);
-        audioManager.addAudio(this, R.raw.error, AudioManager.TAG_FAIL);
-        audioManager.addAudio(this, R.raw.move, AudioManager.TAG_OBJECT_MOVED);
-        audioManager.addAudio(this, R.raw.success, AudioManager.TAG_SUCCES);
-
-        audioManager.startAudio(AudioManager.TAG_MUSIC);
+        this.showScore();
         this.startCounter();
 
 
@@ -70,9 +66,15 @@ public class OpenGLES20Activity extends FragmentActivity {
 //        setContentView(mGLView);
     }
 
+    public void showScore()
+    {
+        String string = "Score : " + gameController.getScore();
+        this.score.setText(string);
+    }
+
     public void startCounter()
     {
-        CountDownTimer timer = new CountDownTimer(totalTime, countDownInterval) {
+        CountDownTimer timer = new CountDownTimer(COUNTDOWN_TOTAL_TIME, COUNTDOWN_INTERVAL) {
             @Override
             public void onTick(long millisUntilFinished) {
                 DecimalFormat decimalFormat = new DecimalFormat("#.#");
@@ -81,9 +83,11 @@ public class OpenGLES20Activity extends FragmentActivity {
                         .append(decimalFormat.format(millisUntilFinished / 1000.0));
                 if(millisUntilFinished <= 5000)
                     timerText.setTextColor(Color.RED);
+                else
+                    timerText.setTextColor(Color.WHITE);
 
                 timerText.setText(s);
-                if(Game.getInstance().isHasWon())
+                if(gameController.isHasWon())
                     onFinish();
             }
 
@@ -91,7 +95,7 @@ public class OpenGLES20Activity extends FragmentActivity {
             public void onFinish()
             {
                 showDialog();
-                audioManager.stopAudio(AudioManager.TAG_MUSIC);
+                gameController.stopAudio(AudioManager.TAG_MUSIC);
                 cancel();
             }
         };

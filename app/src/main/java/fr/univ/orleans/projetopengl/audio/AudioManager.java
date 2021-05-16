@@ -11,14 +11,18 @@ public class AudioManager {
 
     private final Map<String, MediaPlayer> audios = new HashMap<>();
     public static final String TAG_MUSIC = "Musique";
-    public static final String TAG_SUCCES = "Son_Succes";
     public static final String TAG_OBJECT_MOVED = "Mouvement";
     public static final String TAG_FAIL = "Son_Echec";
+    public static final String TAG_WIN = "Partie gagnée";
+    public static final String TAG_LOSE = "Partie_perdue";
 
     private AudioManager() {}
 
     public void addAudio(Context context, int idAudio, String name)
     {
+        if(audios.get(name) != null)
+            deleteAudio(name);
+
         MediaPlayer audio = MediaPlayer.create(context, idAudio);
         audios.put(name, audio);
     }
@@ -43,7 +47,8 @@ public class AudioManager {
     public void stopAudio(String name)
     {
         MediaPlayer audio = getAudio(name);
-        audio.release();
+        audio.pause();
+        audio.seekTo(0);
     }
 
     public static AudioManager getInstance() {
