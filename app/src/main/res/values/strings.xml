@@ -3,4 +3,5 @@
     <string name="game_over">GAME OVER. Votre score est de : </string>
     <string name="reset">RESET</string>
     <string name="quit">QUIT</string>
+    <string name="cliquez_pour_commencer">Cliquez pour commencer</string>
 </resources>

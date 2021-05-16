@@ -39,6 +39,8 @@ public class OpenGLES20Activity extends FragmentActivity {
         fragmentManager = this.getSupportFragmentManager();
         gameController.setScoreText(findViewById(R.id.score));
         gameController.setTimerText(findViewById(R.id.timer));
+        gameController.setClickToStartText(findViewById(R.id.clickToStart));
+
         // le conteneur View pour faire du rendu OpenGL
         glSurfaceView = findViewById(R.id.glSurfaceView);
         glSurfaceView.init(this);

@@ -34,6 +34,13 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.914" />
 
+    <TextView
+        android:id="@+id/clickToStart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:text="@string/cliquez_pour_commencer" />
+
     <fr.univ.orleans.projetopengl.basic.MyGLSurfaceView
         android:id="@+id/glSurfaceView"
         android:layout_width="match_parent"
