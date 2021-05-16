@@ -41,9 +41,9 @@ public class GameOverFragment extends DialogFragment {
                 .append("\n\n");
         if(GameController.getInstance().isHasWon())
         {
-            if(score < 3)
+            if(score < 25)
                 stringBuilder.append("Félicitations ! C'est un excellent score.");
-            else if(score < 5)
+            else if(score < 45)
                 stringBuilder.append("Pas mal, mais vous pouvez faire mieux !");
             else
                 stringBuilder.append("Bof. Oops... Pardonnez-nous, c'est notre côté taquin :-)");
