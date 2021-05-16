@@ -2,32 +2,27 @@ package fr.univ.orleans.projetopengl.alerts;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.StringRes;
 import androidx.fragment.app.DialogFragment;
 
 import java.util.Objects;
 
 import fr.univ.orleans.projetopengl.R;
-import fr.univ.orleans.projetopengl.basic.Game;
+import fr.univ.orleans.projetopengl.audio.AudioManager;
+import fr.univ.orleans.projetopengl.basic.GameController;
 import fr.univ.orleans.projetopengl.launcher.OpenGLES20Activity;
 
 public class GameOverFragment extends DialogFragment {
 
     public static final String TAG = "Game Over";
-    private final int scoreGameOver;
 
-    public GameOverFragment(int score) {
+    public GameOverFragment() {
         Bundle args = new Bundle();
         args.putString(TAG, "title");
         this.setArguments(args);
-        this.scoreGameOver = score;
     }
 
     @NonNull
@@ -36,9 +31,32 @@ public class GameOverFragment extends DialogFragment {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(getResources().getString(R.string.game_over)).append(" ").append(this.scoreGameOver);
+        int score = GameController.getInstance().getScore();
+        stringBuilder.append(getResources().getString(R.string.game_over))
+                .append(" ")
+                .append(score)
+                .append("\n\n");
+        if(GameController.getInstance().isHasWon())
+        {
+            if(score < 3)
+                stringBuilder.append("Félicitations ! C'est un excellent score.");
+            else if(score < 5)
+                stringBuilder.append("Pas mal, mais vous pouvez faire mieux !");
+            else
+                stringBuilder.append("Bof. Oops... Pardonnez-nous, c'est notre côté taquin :)");
+        }
+        else
+        {
+            stringBuilder.append("Perdu ! Manque de chance ou de lucidité ? Réessayez...");
+            GameController.getInstance().playAudio(AudioManager.TAG_LOSE);
+        }
+
         builder.setMessage(stringBuilder.toString())
-                .setPositiveButton(R.string.reset, (dialog, which) -> Game.getInstance().initializeGrid(OpenGLES20Activity.getmGLView()))
+                .setPositiveButton(R.string.reset, (dialog, which) ->
+                {
+                    GameController.getInstance().initializeGrid(OpenGLES20Activity.getmGLView());
+                    ((OpenGLES20Activity) Objects.requireNonNull(getActivity())).startCounter();
+                })
                 .setNegativeButton(R.string.quit, (dialog, which) -> {
                     Objects.requireNonNull(getActivity()).finish();
                     System.exit(0);

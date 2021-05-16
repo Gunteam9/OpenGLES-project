@@ -20,7 +20,6 @@ import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,11 +46,9 @@ public class MyGLSurfaceView extends GLSurfaceView {
     /* Un attribut : le renderer (GLSurfaceView.Renderer est une interface générique disponible) */
     /* MyGLRenderer va implémenter les méthodes de cette interface */
 
-    private final Game game = Game.getInstance();
+    private final GameController gameController = GameController.getInstance();
     private MyGLRenderer renderer;
     private final List<IObject> objToDraw = new ArrayList<IObject>();
-    TextView score;
-    private AudioManager audioManager;
 
     public MyGLSurfaceView(Context context) {
         super(context);
@@ -61,13 +58,11 @@ public class MyGLSurfaceView extends GLSurfaceView {
         super(context, attributes);
     }
 
-    public void init(Context context, TextView score) {
-        audioManager = AudioManager.getInstance();
+    public void init(Context context) {
 
         setEGLConfigChooser(8, 8, 8, 8, 16, 0);
         // Création d'un context OpenGLES 2.0
         setEGLContextClientVersion(3);
-        this.score = score;
 
         // Création du renderer qui va être lié au conteneur View créé
         renderer = new MyGLRenderer(objToDraw, this);
@@ -97,17 +92,15 @@ public class MyGLSurfaceView extends GLSurfaceView {
             
             try {
                 int caseTouch = getCaseTouch(new Vector2(xOpengl, yOpengl));
-                int emptyCase = game.getEmptyPosition();
+                int emptyCase = gameController.getEmptyPosition();
 
-                if (game.getNeighbours(emptyCase).contains(caseTouch))
+                if (gameController.getNeighbours(emptyCase).contains(caseTouch))
                 {
-                    game.moveObject(caseTouch);
-                    String string = "Score : " + game.getScore();
-                    this.score.setText(string);
+                    gameController.moveObject(caseTouch);
                 }
                 else
                 {
-                    audioManager.startAudio(AudioManager.TAG_FAIL);
+                    gameController.playAudio(AudioManager.TAG_FAIL);
                     drawObject(new Cross(Colors.RED, new Vector2(0, -15f)), true);
                 }
 
@@ -122,7 +115,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
     }
 
     private int getCaseTouch(Vector2 touchedPoint) throws NothingTouchedException {
-        for (Map.Entry<Integer, IObject> entry : game.getCurrentGrid().entrySet()) {
+        for (Map.Entry<Integer, IObject> entry : gameController.getCurrentGrid().entrySet()) {
 
             Vector2 max = new Vector2(Integer.MIN_VALUE, Integer.MIN_VALUE);
             Vector2 min = new Vector2(Integer.MAX_VALUE, Integer.MAX_VALUE);

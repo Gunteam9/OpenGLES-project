@@ -3,9 +3,9 @@ package fr.univ.orleans.projetopengl.basic;
 import android.opengl.GLES30;
 import android.os.Build;
 import android.os.Handler;
+import android.content.Context;
 import android.util.Log;
-
-import androidx.annotation.RequiresApi;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,15 +27,16 @@ import fr.univ.orleans.projetopengl.objects.Star;
 import fr.univ.orleans.projetopengl.objects.Triangle;
 import fr.univ.orleans.projetopengl.utils.Vector2;
 
-public class Game {
+public class GameController {
 
-    private static final Game instance = new Game();
+    private static final GameController instance = new GameController();
 
     private final List<Integer> elementsIndex = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8));
     private final Random random = new Random();
     private boolean isInitializationFinished = false;
-    private int score = 0;
-    private boolean hasWon = false;
+    private int score;
+    private TextView scoreText;
+    private boolean hasWon;
     //Positions of objects on the screen
     public final Map<Integer, Vector2> positions = Stream.of(new Object[][] {
             {0, new Vector2(-5f, -5f)},
@@ -55,20 +56,40 @@ public class Game {
     private final Map<Integer, IObject> endingGrid = new HashMap<Integer, IObject>();
 
     private MyGLSurfaceView surfaceView;
+    private MyGLRenderer renderer;
     private final AudioManager audioManager;
 
-    private Game() {
+    private GameController() {
         audioManager = AudioManager.getInstance();
     }
 
-    public static Game getInstance() {
+    public static GameController getInstance() {
         return instance;
     }
+
+    public void addAudio(Context context, int id, String name)
+    {
+        audioManager.addAudio(context, id, name);
+    }
+
+    public void playAudio(String name)
+    {
+        audioManager.startAudio(name);
+    }
+
+    public void stopAudio(String name)
+    {
+        audioManager.stopAudio(name);
+    }
+
 
     public void initializeGrid(MyGLSurfaceView surfaceView) {
         this.surfaceView = surfaceView;
 
         hasWon = false;
+        isInitializationFinished = false;
+        hasWon = false;
+
         currentGrid.clear();
         endingGrid.clear();
         surfaceView.clearObjets();
@@ -119,10 +140,28 @@ public class Game {
 
             surfaceView.requestRender();
 
+        isInitializationFinished = true;
+        this.score = 0;
+        audioManager.startAudio(AudioManager.TAG_MUSIC);
+    }
+
             isInitializationFinished = true;
         }, 3000);
 
 
+    }
+
+    public void setScoreText(TextView scoreText) {
+
+        this.scoreText = scoreText;
+        updateScore(0);
+    }
+
+    private void updateScore(int score)
+    {
+        this.score = score;
+        String string = "Score : " + this.score;
+        this.scoreText.setText(string);
     }
 
     public int getEmptyPosition() {
@@ -168,7 +207,7 @@ public class Game {
         if (!isInitializationFinished)
             return;
 
-        this.score++;
+        updateScore(++this.score);
         audioManager.startAudio(AudioManager.TAG_OBJECT_MOVED);
 
         if (isGridFinish()) {
@@ -202,6 +241,11 @@ public class Game {
             current++;
             ending++;
         }
+
+        hasWon = true;
+        //End
+        audioManager.startAudio(AudioManager.TAG_WIN);
+        OpenGLES20Activity.getmGLView().drawObject(new CheckMark(Colors.GREEN, 0.6f, new Vector2(0, -15)), true);
 
         return true;
     }

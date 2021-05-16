@@ -18,19 +18,13 @@ package fr.univ.orleans.projetopengl.basic;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import android.opengl.GLES10;
 import android.opengl.GLES30;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
-import android.os.Build;
 
-import androidx.annotation.RequiresApi;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import fr.univ.orleans.projetopengl.R;
 import fr.univ.orleans.projetopengl.objects.IObject;
 
 /* MyGLRenderer implémente l'interface générique GLSurfaceView.Renderer */
@@ -38,7 +32,7 @@ import fr.univ.orleans.projetopengl.objects.IObject;
 public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     private static final String TAG = "MyGLRenderer";
-    private final Game game = Game.getInstance();
+    private final GameController gameController = GameController.getInstance();
     private final MyGLSurfaceView surfaceView;
 
     // Les matrices habituelles Model/View/Projection
@@ -63,7 +57,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         // la couleur du fond d'écran
         GLES30.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-        game.initializeGrid(surfaceView);
+        gameController.initializeGrid(surfaceView);
     }
 
     /* Deuxième méthode équivalente à la fonction Display */
@@ -104,7 +98,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         Matrix.multiplyMM(scratch, 0, mMVPMatrix, 0, mModelMatrix, 0);
 
         /* on appelle la méthode dessin du carré élémentaire */
-        for (IObject obj : game.getObjToDraw()) {
+        for (IObject obj : gameController.getObjToDraw()) {
             obj.draw(scratch);
         }
 
